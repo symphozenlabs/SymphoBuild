@@ -7,7 +7,7 @@ export const load = async () => {
 	const data = await sanityFetch<LayoutData>(LAYOUT_QUERY);
 	return {
 		...data,
-		settings: data.settings ?? { siteName: 'Sympho Build' },
+		settings: data.settings ?? { siteName: 'Spacecraft Associates' },
 		siteUrl: getEnv().PUBLIC_SITE_URL,
 		demoMode: isDemoMode()
 	};

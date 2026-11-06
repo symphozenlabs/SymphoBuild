@@ -1,5 +1,5 @@
 <!--
-	Sympho Build mark: a drawing-sheet square holding three floor slabs and a single
+	Spacecraft Associates mark: a drawing-sheet square holding three floor slabs and a single
 	copper fin — the building and the brand accent in one glyph. If an uploaded logo
 	exists in Site Settings it is used instead.
 -->
@@ -8,7 +8,7 @@
 	import type { SanityImage } from '$lib/types';
 
 	let {
-		name = 'Sympho Build',
+		name = 'Spacecraft Associates',
 		logo,
 		class: className = ''
 	}: { name?: string; logo?: SanityImage; class?: string } = $props();

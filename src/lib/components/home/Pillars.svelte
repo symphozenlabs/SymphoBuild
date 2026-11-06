@@ -1,5 +1,5 @@
 <!--
-	"Why Sympho Build" — a dark specification sheet. A soft copper light follows the
+	"Why Spacecraft Associates" — a dark specification sheet. A soft copper light follows the
 	pointer across the sheet, and each pillar's icon draws itself on entry.
 -->
 <script lang="ts">
@@ -20,7 +20,7 @@
 	<div class="blueprint-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
 	<div class="spot-light pointer-events-none absolute inset-0" aria-hidden="true"></div>
 	<div class="container-page relative">
-		<SectionHeading id="pillars-heading" number="SB—04" eyebrow="Commitments" {heading} {intro} />
+		<SectionHeading id="pillars-heading" number="SA—04" eyebrow="Commitments" {heading} {intro} />
 		<ol
 			class="mt-16 grid gap-px overflow-hidden rounded-md bg-limestone-100/12 sm:grid-cols-2 lg:grid-cols-5"
 		>

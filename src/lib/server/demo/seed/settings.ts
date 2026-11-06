@@ -4,17 +4,18 @@ import type { SeedDoc } from './helpers.ts';
 export const siteSettings: SeedDoc = {
 	_id: 'siteSettings',
 	_type: 'siteSettings',
-	siteName: 'Sympho Build',
+	siteName: 'Spacecraft Associates',
 	tagline: 'Design-led construction & real estate',
 	demoNotice:
 		'Demo content — every word, figure and image here is a placeholder to be replaced in Sanity Studio before launch.',
-	logoText: 'Sympho Build',
+	logoText: 'Spacecraft Associates',
 	contact: {
 		phone: '+919000000000',
 		phoneDisplay: '+91 90000 00000',
-		email: 'hello@symphobuild.example',
+		email: 'hello@spacecraftassociates.example',
 		whatsapp: '919000000000',
-		whatsappMessage: 'Hello Sympho Build, I would like to know more{context}. Please get in touch.'
+		whatsappMessage:
+			'Hello Spacecraft Associates, I would like to know more{context}. Please get in touch.'
 	},
 	address: {
 		line1: '[Demo] 42 Race Course Road',
@@ -38,14 +39,14 @@ export const siteSettings: SeedDoc = {
 		{ _key: k(), platform: 'facebook', url: 'https://www.facebook.com/' }
 	],
 	organization: {
-		legalName: 'Sympho Build Private Limited (demo name)',
+		legalName: 'Spacecraft Associates Private Limited (demo name)',
 		foundingYear: 2008,
 		priceRange: '₹₹₹'
 	},
 	features: { enablePlotSales: true, enableUnitInventory: true, showContactDock: true },
 	leadForms: {
 		consentText:
-			'I agree to be contacted by Sympho Build by phone, WhatsApp or email about this enquiry, and I have read the privacy policy.',
+			'I agree to be contacted by Spacecraft Associates by phone, WhatsApp or email about this enquiry, and I have read the privacy policy.',
 		successTitle: 'Thank you — your enquiry is with us.',
 		successMessage:
 			'A member of our client team will call you within one working day. If it is urgent, message us on WhatsApp.',
@@ -72,12 +73,12 @@ export const siteSettings: SeedDoc = {
 	},
 	seo: {
 		...seo(
-			'Sympho Build — Design-led construction & real estate',
-			'Apartments, villas, plots and commercial spaces designed, approved and built by one accountable team. Book a consultation or a site visit with Sympho Build.'
+			'Spacecraft Associates — Design-led construction & real estate',
+			'Apartments, villas, plots and commercial spaces designed, approved and built by one accountable team. Book a consultation or a site visit with Spacecraft Associates.'
 		),
 		image: img(
 			'og_default',
-			'Illustrated residential tower at dusk — Sympho Build placeholder share image'
+			'Illustrated residential tower at dusk — Spacecraft Associates placeholder share image'
 		)
 	}
 };
@@ -117,7 +118,7 @@ export const navigation: SeedDoc = {
 			href: '/about',
 			description: 'Who we are and how we build',
 			children: [
-				{ _key: k(), label: 'About Sympho Build', href: '/about' },
+				{ _key: k(), label: 'About Spacecraft Associates', href: '/about' },
 				{ _key: k(), label: 'Quality & specifications', href: '/quality-and-specifications' },
 				{ _key: k(), label: 'For landowners', href: '/for-landowners' },
 				{ _key: k(), label: 'Gallery', href: '/gallery' }
@@ -181,7 +182,7 @@ export const homePage: SeedDoc = {
 		eyebrow: 'Design-led builders · Western Tamil Nadu',
 		headline: 'Homes drawn with intent, built without shortcuts.',
 		intro:
-			'Sympho Build designs, approves and constructs apartments, villas and workplaces with one accountable team — from the first sketch on the site to the last key in your hand.',
+			'Spacecraft Associates designs, approves and constructs apartments, villas and workplaces with one accountable team — from the first sketch on the site to the last key in your hand.',
 		primaryCta: cta('Explore projects', '/projects', 'primary'),
 		secondaryCta: cta('Book a consultation', '/contact#consultation', 'secondary', 'consultation'),
 		mediaMode: 'scene',
@@ -207,7 +208,7 @@ export const homePage: SeedDoc = {
 	servicesHeading: 'One studio, every stage of the build.',
 	servicesIntro:
 		'Engage us for a single service or the entire journey. Either way, you deal with one team that carries responsibility across design, approvals and construction.',
-	pillarsHeading: 'Why owners choose Sympho Build',
+	pillarsHeading: 'Why owners choose Spacecraft Associates',
 	pillarsIntro:
 		'Five commitments written into every agreement — and reviewed at every site meeting.',
 	pillars: [
@@ -240,7 +241,7 @@ export const homePage: SeedDoc = {
 	process: {
 		heading: 'From drawing board to door key.',
 		intro:
-			'Scroll through the six stages every Sympho Build project moves through. The same team, the same file, from the first line to the final walkthrough.',
+			'Scroll through the six stages every Spacecraft Associates project moves through. The same team, the same file, from the first line to the final walkthrough.',
 		steps: [
 			{
 				_key: k(),
@@ -313,7 +314,7 @@ export const homePage: SeedDoc = {
 		secondaryCta: cta('Chat on WhatsApp', '/contact', 'secondary', 'whatsapp')
 	},
 	seo: seo(
-		'Sympho Build — Design-led construction & real estate in Coimbatore',
+		'Spacecraft Associates — Design-led construction & real estate in Coimbatore',
 		'Apartments, villas, plots and commercial spaces designed, approved and built by one accountable team. Explore projects or book a site visit.'
 	)
 };

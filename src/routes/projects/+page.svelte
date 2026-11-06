@@ -47,7 +47,7 @@
 	heading={data.page?.hero?.heading ?? 'Projects'}
 	intro={data.page?.hero?.intro}
 	crumbs={[{ label: 'Projects' }]}
-	sheet="SB—P · Catalogue"
+	sheet="SA—P · Catalogue"
 />
 
 <section class="container-page pb-section" aria-labelledby="results-heading">

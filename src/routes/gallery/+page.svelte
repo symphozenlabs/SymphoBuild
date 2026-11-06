@@ -56,7 +56,7 @@
 	heading={data.page?.hero?.heading ?? 'Gallery'}
 	intro={data.page?.hero?.intro}
 	crumbs={[{ label: 'Gallery' }]}
-	sheet="SB—G · Portfolio"
+	sheet="SA—G · Portfolio"
 />
 
 <section class="container-page pb-section" aria-labelledby="gallery-count">

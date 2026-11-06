@@ -110,7 +110,7 @@ export const blogPosts: SeedDoc[] = [
 			p(
 				'One low cube is not automatically a failure, but it must be investigated. Engineers may test additional samples or the structure itself before deciding on any remedial action.'
 			),
-			h2('Where Sympho Build keeps these records'),
+			h2('Where Spacecraft Associates keeps these records'),
 			p(
 				'Each project maintains a quality file with every pour, its location and its test results. Owners receive a copy at handover.'
 			),

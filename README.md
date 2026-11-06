@@ -1,8 +1,8 @@
-# Sympho Build — website & content studio
+# Spacecraft Associates — website & content studio
 
-A design-led website for **Sympho Build**, a construction and real-estate company, built with SvelteKit and managed entirely in Sanity Studio.
+A design-led website for **Spacecraft Associates**, a construction and real-estate company, built with SvelteKit and managed entirely in Sanity Studio.
 
-- **Website** (repo root): SvelteKit 2 · Svelte 5 · TypeScript · Tailwind CSS 4 · three.js
+- **Website** (repo root): SvelteKit 2 · Svelte 5 · TypeScript · Tailwind CSS 4
 - **Studio** (`/studio`): Sanity Studio with a custom desk structure, page builder and leads inbox
 
 The site runs out of the box in **demo mode** with no accounts or keys. It serves bundled sample content through the same GROQ queries it uses in production. Once you connect a Sanity project, the content comes from Sanity instead.
@@ -39,31 +39,33 @@ The visual identity reads like an architecture journal crossed with a developer'
 | **Sage** `#7b8766`      | Landscape, success states and quiet details                    |
 | **Newsreader**          | Display serif (optical sizing, italics for emphasis)           |
 | **Manrope**             | Body sans                                                      |
-| **IBM Plex Mono**       | Drawing-sheet labels (`SB—02 · Projects`), data and metadata   |
+| **IBM Plex Mono**       | Drawing-sheet labels (`SA—02 · Projects`), data and metadata   |
 
-Recurring motifs include sheet labels, corner registration ticks, dimension-line underlines, blueprint grids and a survey-reticle cursor.
+Recurring motifs include sheet labels, corner registration ticks, dimension-line underlines, and blueprint grids.
 
 All tokens live in [`src/routes/layout.css`](src/routes/layout.css) as Tailwind v4 `@theme` variables: colour, fluid type scale, spacing, radius, shadows, easing and durations. They are available as utilities such as `bg-ink-900`, `text-display-lg`, `py-section` and `ease-out-expo`.
 
 ### Signature moment: the construction story
 
-The home page hero and the "From drawing board to door key" timeline share one sticky 3D stage ([`src/lib/three/tower-scene.ts`](src/lib/three/tower-scene.ts)). As visitors scroll through the process steps managed in Sanity, a procedural building constructs itself in stages:
+The home page hero and the "From drawing board to door key" timeline share one sticky stage showing a 30-second photoreal construction film ([`static/hero/`](static/hero/), generated with Higgsfield). Scrolling scrubs the film, so the building goes up as visitors move through the process steps managed in Sanity:
 
-1. Copper blueprint lines draw themselves (design).
-2. The site boundary and raft are marked (approvals and foundation).
-3. Columns and slabs rise floor by floor while a tower crane works (structure).
-4. Glazing and terracotta fins close in the building (envelope).
-5. Windows light up and landscaping grows (finishes).
-6. The camera pulls back into an evening glow (handover).
+1. Printed drawings on a table at the site at first light (design).
+2. The camera rises to the plot, marked out in lime powder and pegs (approvals).
+3. Excavation, the foundation raft, then the concrete frame rising with a tower crane (foundation and structure).
+4. Blockwork, glazing and terracotta fins close in the building in golden light (envelope).
+5. The crane comes down, landscaping goes in and the windows light up at dusk (finishes).
+6. A blue-hour pull-back reveals the finished tower (handover).
 
-Editors choose which stage each process step triggers (**Home page → Process & 3D story**).
+Editors choose which stage each process step plays (**Home page → Process & construction film**). The film timeline lives in [`src/lib/hero-film.ts`](src/lib/hero-film.ts).
 
-How the scene degrades and performs:
+How the film degrades and performs:
 
-- **No JS or no WebGL:** an animated isometric SVG drawing of the same building is shown, and all step content stays readable in normal document flow.
-- **Mobile:** fewer floors and trees, no antialiasing, a lower pixel ratio and a centred composition.
-- **Reduced motion:** the building still reflects the current stage, but the camera never moves.
-- **Performance:** there are no model or texture downloads. Rendering happens on demand only and pauses off-screen. The three.js chunk (about 130 kB gzipped) loads on browser idle, after first paint.
+- **First paint / no JS:** the film's first frame is the LCP image, and all step content stays readable in normal document flow.
+- **Loading:** after first paint the film (10.7 MB at 720p, or 4.6 MB at 480p on small screens) is downloaded once into memory so every seek is instant. Both encodes put a keyframe every 8 frames so scrubbing backwards stays smooth.
+- **Phones:** in portrait the 16:9 film sits letterboxed at the top of the screen, above the docked step card.
+- **Reduced motion or data saver:** the film is not downloaded; a still from the film cross-fades in for each step.
+
+To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored) and run its `stitch.sh`, then re-encode with the settings above.
 
 Other motion is built with transforms and opacity only. It includes:
 
@@ -93,14 +95,14 @@ Every effect respects `prefers-reduced-motion`.
 
 Content is cached at the edge for 5 minutes with background revalidation (`s-maxage=300, stale-while-revalidate`), so published edits appear within a few minutes. To make updates instant, add a Sanity webhook that triggers a redeploy or cache purge on your host.
 
-## 4. Editing content (for the Sympho Build team)
+## 4. Editing content (for the Spacecraft Associates team)
 
 Everything a visitor reads is editable in the Studio:
 
 | Studio section                         | Controls                                                                                                                                                                                                                                                                                                                                                                           |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Leads**                              | Every enquiry, grouped as New, In progress, Won and Closed. Update the status, assign a team member, add internal notes.                                                                                                                                                                                                                                                           |
-| **Home page**                          | Hero text and CTAs, background (3D scene, image or video), trust metrics, featured projects, "Why us" pillars, the process timeline (drives the 3D story), testimonials, FAQs and the closing CTA                                                                                                                                                                                  |
+| **Home page**                          | Hero text and CTAs, background (construction film, image or video), trust metrics, featured projects, "Why us" pillars, the process timeline (drives the 3D story), testimonials, FAQs and the closing CTA                                                                                                                                                                         |
 | **Projects**                           | Status, type, location and coordinates, gallery, video and virtual tour, overview, key facts, prices (display text plus numbers for the budget filter), amenities, units and plot sizes with availability, specifications, approvals, RERA and DTCP, brochure PDF, nearby places, FAQs, related projects. **Construction updates** are separate dated entries linked to a project. |
 | **Services**                           | Summary, rich text, process, deliverables, project examples, FAQs, and which "interest" the enquiry form pre-selects                                                                                                                                                                                                                                                               |
 | **Pages**                              | About, Quality & specifications, For landowners, Buyer's guide, Contact, Privacy, Terms, Thank you, and any new page (reachable at `/<slug>`). Pages are built from drag-and-drop sections. The `projects`, `services`, `insights` and `gallery` pages hold the header copy and SEO for those listing pages.                                                                       |
@@ -191,13 +193,13 @@ src/
   routes/                     Pages, form actions (/enquire), sitemap, robots
   lib/
     components/
-      home/                   BuildStory (3D hero + process), plates, services index, pillars…
+      home/                   BuildStory (film hero + process), plates, services index, pillars…
       layout/                 Header, mobile menu, footer, contact dock/bar, cursor, dialogs
       projects/ insights/     Cards, gallery, unit plans, progress, article layout
       sections/               Page-builder renderer, page hero, FAQs
       forms/                  Lead form shell + consultation / project / landowner / brochure
       ui/                     Button, Img, Dialog, Accordion, Lightbox, PortableText, Icon…
-    three/tower-scene.ts      Procedural construction scene
+    hero-film.ts              Construction film timeline (stage → seconds)
     motion/actions.ts         Reveal, magnetic, tilt, spotlight, scroll-progress, count-up
     server/                   Env (Zod), Sanity client, GROQ queries, leads, demo store + seed
     sanity/image.ts           Responsive image + file URL helpers

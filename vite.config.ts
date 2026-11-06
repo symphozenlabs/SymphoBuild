@@ -19,11 +19,6 @@ export default defineConfig({
 			adapter: adapter()
 		})
 	],
-	build: {
-		// three.js (~130 kB gzip) is intentionally isolated in a lazy chunk that loads on idle,
-		// only on the home page — it never blocks first paint.
-		chunkSizeWarningLimit: 600
-	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

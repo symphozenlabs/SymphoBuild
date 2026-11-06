@@ -53,7 +53,7 @@
 
 <section class="py-section" aria-labelledby="services-heading">
 	<div class="container-page">
-		<SectionHeading id="services-heading" number="SB—03" eyebrow="Services" {heading} {intro} />
+		<SectionHeading id="services-heading" number="SA—03" eyebrow="Services" {heading} {intro} />
 
 		<div
 			class="relative mt-16"

@@ -7,6 +7,12 @@
 	let { footer, settings }: { footer: Footer | null; settings: SiteSettings } = $props();
 	const year = new Date().getFullYear();
 	const a = $derived(settings.address);
+	// Scale the outline wordmark to the name's length so long names never clip.
+	// 12 characters reproduces the original 12.5vw / 15rem sizing.
+	const wordmarkSize = $derived.by(() => {
+		const n = Math.max(settings.siteName?.length ?? 12, 8);
+		return `clamp(2rem, ${(150 / n).toFixed(2)}vw, ${(180 / n).toFixed(2)}rem)`;
+	});
 </script>
 
 <footer
@@ -20,7 +26,7 @@
 	<div class="container-page relative">
 		<div class="grid gap-14 border-b border-limestone-100/12 pt-section-sm pb-16 lg:grid-cols-12">
 			<div class="lg:col-span-5">
-				<p class="sheet-label">Sympho Build</p>
+				<p class="sheet-label">{settings.siteName}</p>
 				{#if footer?.statement}
 					<p class="mt-6 max-w-[26ch] font-display text-display-md text-limestone-50" use:reveal>
 						{footer.statement}
@@ -88,7 +94,7 @@
 		<!-- Oversized wordmark, drawn in outline -->
 		<p
 			class="pointer-events-none overflow-hidden py-10 text-center font-display leading-[0.9] tracking-[-0.05em] whitespace-nowrap text-transparent select-none [-webkit-text-stroke:1px_rgb(244_239_230/0.18)]"
-			style="font-size: clamp(2.5rem, 12.5vw, 15rem)"
+			style:font-size={wordmarkSize}
 			aria-hidden="true"
 		>
 			{settings.siteName}
@@ -97,7 +103,22 @@
 		<div
 			class="flex flex-col gap-6 border-t border-limestone-100/12 pt-8 text-sm text-limestone-400 lg:flex-row lg:items-start lg:justify-between"
 		>
-			<p>© {year} {settings.organization?.legalName ?? settings.siteName}. All rights reserved.</p>
+			<div class="flex flex-col gap-2">
+				<p>
+					© {year}
+					{settings.organization?.legalName ?? settings.siteName}. All rights reserved.
+				</p>
+				<p>
+					Powered by
+					<a
+						href="https://www.symphozen.com/"
+						target="_blank"
+						rel="noopener"
+						class="link-dim text-limestone-200"
+						>SymphoZen Labs<span class="sr-only"> (opens in a new tab)</span></a
+					>
+				</p>
+			</div>
 			{#if footer?.disclaimer}<p class="max-w-2xl text-xs leading-relaxed">
 					{footer.disclaimer}
 				</p>{/if}

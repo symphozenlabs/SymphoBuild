@@ -19,7 +19,7 @@
 <section class="relative py-section" aria-labelledby="featured-heading">
 	<div class="container-page">
 		<div class="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-			<SectionHeading id="featured-heading" number="SB—02" eyebrow="Projects" {heading} {intro} />
+			<SectionHeading id="featured-heading" number="SA—02" eyebrow="Projects" {heading} {intro} />
 			<Button href="/projects" variant="secondary" class="self-start lg:self-auto"
 				>All projects</Button
 			>

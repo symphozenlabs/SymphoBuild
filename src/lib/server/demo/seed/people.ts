@@ -10,7 +10,7 @@ export const team: SeedDoc[] = [
 		leadership: true,
 		order: 1,
 		photo: img('portrait_1', 'Placeholder portrait for the founder'),
-		bio: 'Demo profile. A civil engineer who started Sympho Build with a single residential site and a belief that construction should be as well documented as it is well built.'
+		bio: 'Demo profile. A civil engineer who started Spacecraft Associates with a single residential site and a belief that construction should be as well documented as it is well built.'
 	},
 	{
 		_id: 'team.2',
@@ -89,7 +89,7 @@ export const testimonials: SeedDoc[] = [
 		_id: 'testimonial.4',
 		_type: 'testimonial',
 		quote:
-			'Our family had held the land for decades. Sympho Build explained the joint-development numbers line by line before we signed.',
+			'Our family had held the land for decades. Spacecraft Associates explained the joint-development numbers line by line before we signed.',
 		name: 'Demo client — Ramasamy family',
 		context: 'Landowner partner',
 		featured: true
@@ -194,6 +194,6 @@ export const faqs: SeedDoc[] = [
 		'landowners',
 		3,
 		'Who handles approvals and construction costs in a joint venture?',
-		'In a typical joint development, Sympho Build funds and manages design, approvals and construction. The exact responsibilities are written into the development agreement, reviewed by your own legal advisor.'
+		'In a typical joint development, Spacecraft Associates funds and manages design, approvals and construction. The exact responsibilities are written into the development agreement, reviewed by your own legal advisor.'
 	)
 ];

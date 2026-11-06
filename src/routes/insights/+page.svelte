@@ -33,7 +33,7 @@
 	crumbs={activeCategory
 		? [{ label: 'Insights', href: '/insights' }, { label: activeCategory.title }]
 		: [{ label: 'Insights' }]}
-	sheet="SB—J · Journal"
+	sheet="SA—J · Journal"
 />
 
 <section class="container-page pb-section" aria-label="Articles">

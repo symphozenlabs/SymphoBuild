@@ -173,19 +173,19 @@ export const processStep = defineType({
 		defineField({ name: 'description', type: 'text', rows: 3 }),
 		defineField({
 			name: 'stage',
-			title: '3D construction stage',
+			title: 'Construction film stage',
 			type: 'string',
 			description:
-				'Home page only: which part of the 3D building animation plays while this step is on screen.',
+				'Home page only: which part of the construction film plays while this step is on screen.',
 			options: {
 				list: [
-					{ title: 'Design (blueprint drawing)', value: 'design' },
-					{ title: 'Approvals (site marking)', value: 'approvals' },
-					{ title: 'Foundation', value: 'foundation' },
-					{ title: 'Structure (frame rises)', value: 'structure' },
+					{ title: 'Design (drawings on the site table)', value: 'design' },
+					{ title: 'Approvals (plot marked out)', value: 'approvals' },
+					{ title: 'Foundation (excavation & raft)', value: 'foundation' },
+					{ title: 'Structure (foundation to full frame)', value: 'structure' },
 					{ title: 'Envelope (glazing & fins)', value: 'envelope' },
-					{ title: 'Finishes (lights & landscape)', value: 'finishes' },
-					{ title: 'Handover', value: 'handover' }
+					{ title: 'Finishes (landscape & lights)', value: 'finishes' },
+					{ title: 'Handover (blue-hour reveal)', value: 'handover' }
 				]
 			}
 		})

@@ -8,8 +8,8 @@ const singletonIds = new Set(SINGLETONS.map((s) => s.id));
 const singletonTypes = new Set(SINGLETONS.map((s) => s.type));
 
 export default defineConfig({
-	name: 'sympho-build',
-	title: 'Sympho Build',
+	name: 'spacecraft-associates',
+	title: 'Spacecraft Associates',
 	projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'your-project-id',
 	dataset: process.env.SANITY_STUDIO_DATASET || 'production',
 

@@ -27,7 +27,7 @@
 
 	const settings = $derived(page.data.settings as SiteSettings | undefined);
 	const siteUrl = $derived((page.data.siteUrl as string) ?? '');
-	const siteName = $derived(settings?.siteName ?? 'Sympho Build');
+	const siteName = $derived(settings?.siteName ?? 'Spacecraft Associates');
 
 	const fullTitle = $derived.by(() => {
 		const t = seo?.title || title;

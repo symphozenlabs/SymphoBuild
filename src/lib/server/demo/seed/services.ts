@@ -40,7 +40,7 @@ function service(s: ServiceInput): SeedDoc {
 		relatedProjects: refs(s.projects ?? []),
 		faqs: refs(s.faqs ?? []),
 		enquiryInterest: s.interest,
-		seo: seo(`${s.title} — Sympho Build`, s.summary)
+		seo: seo(`${s.title} — Spacecraft Associates`, s.summary)
 	};
 }
 

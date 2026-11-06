@@ -47,7 +47,7 @@ const leadList = (S: StructureBuilder, title: string, filter: string) =>
 
 export const structure: StructureResolver = (S) =>
 	S.list()
-		.title('Sympho Build')
+		.title('Spacecraft Associates')
 		.items([
 			S.listItem()
 				.title('Leads')

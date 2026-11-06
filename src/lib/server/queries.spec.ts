@@ -51,7 +51,7 @@ describe('GROQ queries (demo mode)', () => {
 		const r = await demoFetch<{ settings: { siteName: string }; projectOptions: unknown[] }>(
 			Q.LAYOUT_QUERY
 		);
-		expect(r.settings.siteName).toBe('Sympho Build');
+		expect(r.settings.siteName).toBe('Spacecraft Associates');
 		expect(r.projectOptions.length).toBeGreaterThan(0);
 	});
 

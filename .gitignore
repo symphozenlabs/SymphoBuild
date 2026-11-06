@@ -30,3 +30,6 @@ vite.config.ts.timestamp-*
 
 .vercel
 .env*
+
+# Source media for generated videos (large; keep out of git)
+/assets-src

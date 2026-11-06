@@ -62,7 +62,7 @@
 	{/each}
 {/snippet}
 
-<div class={cx(prose && 'prose-sympho', className)}>
+<div class={cx(prose && 'prose-spacecraft', className)}>
 	{#each groups as group, gi (group.kind === 'list' ? group.key : (group.block._key ?? gi))}
 		{#if group.kind === 'list'}
 			{#if group.type === 'number'}

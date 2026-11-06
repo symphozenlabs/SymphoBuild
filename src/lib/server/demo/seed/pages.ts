@@ -34,7 +34,7 @@ const page = (i: PageInput): SeedDoc => ({
 	hero: { _type: 'pageHero', ...i.hero },
 	sections: (i.sections ?? []).map((s) => ({ _key: k(), ...(s as object) })),
 	seo: {
-		...seo(i.seoTitle ?? `${i.title} — Sympho Build`, i.seoDescription),
+		...seo(i.seoTitle ?? `${i.title} — Spacecraft Associates`, i.seoDescription),
 		...(i.noIndex ? { noIndex: true } : {})
 	}
 });
@@ -62,7 +62,7 @@ export const pages: SeedDoc[] = [
 				'Filter by status, type, location, size or budget. Every project page lists its approvals, specifications and construction progress.'
 		},
 		seoDescription:
-			'Explore apartments, villas, gated communities, plots and commercial projects by Sympho Build — upcoming, ongoing, completed and ready to move.'
+			'Explore apartments, villas, gated communities, plots and commercial projects by Spacecraft Associates — upcoming, ongoing, completed and ready to move.'
 	}),
 	page({
 		id: 'services',
@@ -71,7 +71,7 @@ export const pages: SeedDoc[] = [
 			eyebrow: 'What we do',
 			heading: 'Seven services. One accountable team.',
 			intro:
-				'Engage Sympho Build for a single stage or the complete journey — from land advice and architecture to approvals, construction and interiors.'
+				'Engage Spacecraft Associates for a single stage or the complete journey — from land advice and architecture to approvals, construction and interiors.'
 		},
 		sections: [
 			{
@@ -84,7 +84,7 @@ export const pages: SeedDoc[] = [
 			}
 		],
 		seoDescription:
-			'Turnkey construction, architecture, interiors, project management, estimation, plan approvals and land advisory from Sympho Build.'
+			'Turnkey construction, architecture, interiors, project management, estimation, plan approvals and land advisory from Spacecraft Associates.'
 	}),
 	page({
 		id: 'insights',
@@ -95,7 +95,7 @@ export const pages: SeedDoc[] = [
 			intro: 'Practical writing on construction, design and buying a home.'
 		},
 		seoDescription:
-			'Articles on construction quality, design and homebuying from the Sympho Build team.'
+			'Articles on construction quality, design and homebuying from the Spacecraft Associates team.'
 	}),
 	page({
 		id: 'gallery',
@@ -106,7 +106,7 @@ export const pages: SeedDoc[] = [
 			intro: 'Exteriors, interiors, amenities and the construction stages in between.'
 		},
 		seoDescription:
-			'A visual portfolio of Sympho Build projects — exteriors, interiors, amenities and construction progress.'
+			'A visual portfolio of Spacecraft Associates projects — exteriors, interiors, amenities and construction progress.'
 	}),
 
 	/* ── About ────────────────────────────────────────────────────────────── */
@@ -114,11 +114,11 @@ export const pages: SeedDoc[] = [
 		id: 'about',
 		title: 'About',
 		hero: {
-			eyebrow: 'About Sympho Build',
+			eyebrow: 'About Spacecraft Associates',
 			heading: 'We believe a building should be as well documented as it is well built.',
 			intro:
-				'Founded in 2008 (demo), Sympho Build is a design-led construction and real-estate practice based in Coimbatore.',
-			image: img('office', 'Placeholder illustration of the Sympho Build studio building')
+				'Founded in 2008 (demo), Spacecraft Associates is a design-led construction and real-estate practice based in Coimbatore.',
+			image: img('office', 'Placeholder illustration of the Spacecraft Associates studio building')
 		},
 		sections: [
 			{
@@ -130,7 +130,7 @@ export const pages: SeedDoc[] = [
 						'Our founder’s first project was a family home. Alongside the keys, the owners received a file with every drawing, test report and invoice. They said it was the file, more than the house, that made them trust us.'
 					),
 					p(
-						'That file became a habit, and the habit became a practice. Today every Sympho Build project — an apartment tower or a single villa — is documented the same way.'
+						'That file became a habit, and the habit became a practice. Today every Spacecraft Associates project — an apartment tower or a single villa — is documented the same way.'
 					)
 				),
 				image: img('interior_living', 'Placeholder illustration of a finished living room'),
@@ -298,7 +298,7 @@ export const pages: SeedDoc[] = [
 			}
 		],
 		seoDescription:
-			'The story, leadership, values and capabilities behind Sympho Build, a design-led construction and real-estate practice in Coimbatore.'
+			'The story, leadership, values and capabilities behind Spacecraft Associates, a design-led construction and real-estate practice in Coimbatore.'
 	}),
 
 	/* ── Quality & specifications ─────────────────────────────────────────── */
@@ -425,7 +425,7 @@ export const pages: SeedDoc[] = [
 			}
 		],
 		seoDescription:
-			'Sympho Build construction standards: soil investigation, structural design, waterproofing, safety, sustainability, workmanship and material specifications.'
+			'Spacecraft Associates construction standards: soil investigation, structural design, waterproofing, safety, sustainability, workmanship and material specifications.'
 	}),
 
 	/* ── For landowners ───────────────────────────────────────────────────── */
@@ -436,7 +436,7 @@ export const pages: SeedDoc[] = [
 			eyebrow: 'Joint development',
 			heading: 'Your land, developed with you — not just on it.',
 			intro:
-				'Partner with Sympho Build to turn a plot you own into homes or workplaces. We design, approve, fund and build; you share in the result.',
+				'Partner with Spacecraft Associates to turn a plot you own into homes or workplaces. We design, approve, fund and build; you share in the result.',
 			image: img('palm_grid_avenue', 'Placeholder illustration of a tree-lined development')
 		},
 		sections: [
@@ -536,7 +536,7 @@ export const pages: SeedDoc[] = [
 			}
 		],
 		seoDescription:
-			'Joint development and land partnership with Sympho Build: how it works, the benefits for landowners, and a simple eligibility form.'
+			'Joint development and land partnership with Spacecraft Associates: how it works, the benefits for landowners, and a simple eligibility form.'
 	}),
 
 	/* ── Buyer's guide ────────────────────────────────────────────────────── */
@@ -590,7 +590,7 @@ export const pages: SeedDoc[] = [
 			}
 		],
 		seoDescription:
-			'Contact Sympho Build — address, phone, WhatsApp, business hours, service areas and a consultation booking form.'
+			'Contact Spacecraft Associates — address, phone, WhatsApp, business hours, service areas and a consultation booking form.'
 	}),
 
 	/* ── Legal ────────────────────────────────────────────────────────────── */
@@ -635,7 +635,7 @@ export const pages: SeedDoc[] = [
 			}
 		],
 		seoDescription:
-			'How Sympho Build collects, uses and protects personal information submitted through this website.'
+			'How Spacecraft Associates collects, uses and protects personal information submitted through this website.'
 	}),
 	page({
 		id: 'terms',
@@ -661,12 +661,12 @@ export const pages: SeedDoc[] = [
 					),
 					h2('Intellectual property'),
 					p(
-						'Text, drawings and images on this website belong to Sympho Build or its licensors and may not be reproduced without permission.'
+						'Text, drawings and images on this website belong to Spacecraft Associates or its licensors and may not be reproduced without permission.'
 					)
 				)
 			}
 		],
-		seoDescription: 'Terms governing the use of the Sympho Build website.'
+		seoDescription: 'Terms governing the use of the Spacecraft Associates website.'
 	}),
 	page({
 		id: 'thank-you',
@@ -685,7 +685,7 @@ export const pages: SeedDoc[] = [
 				secondaryCta: cta('Read the buyer’s guide', '/buyers-guide', 'secondary')
 			}
 		],
-		seoDescription: 'Thank you for contacting Sympho Build.',
+		seoDescription: 'Thank you for contacting Spacecraft Associates.',
 		noIndex: true
 	})
 ];

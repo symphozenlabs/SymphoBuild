@@ -410,7 +410,7 @@ function pdf(lines: string[]) {
 writeFileSync(
 	resolve(outDir, 'brochure_sample.pdf'),
 	pdf([
-		'Sympho Build - Sample project brochure',
+		'Spacecraft Associates - Sample project brochure',
 		'DEMO DOCUMENT: replace with the real brochure in Sanity Studio.',
 		'Open the project in Studio > Media > Brochure and upload your PDF.',
 		'Plans, prices and specifications in a real brochure must match the agreement.'

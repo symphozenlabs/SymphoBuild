@@ -37,7 +37,7 @@ export const siteSettings = defineType({
 			type: 'imageWithAlt',
 			group: 'brand',
 			description:
-				'Optional. Without a logo the built-in Sympho Build wordmark is used. SVG or transparent PNG recommended.'
+				'Optional. Without a logo the built-in Spacecraft Associates wordmark is used. SVG or transparent PNG recommended.'
 		}),
 		defineField({ name: 'logoText', title: 'Wordmark text', type: 'string', group: 'brand' }),
 		defineField({
@@ -297,7 +297,7 @@ export const homePage = defineType({
 	icon: HomeIcon,
 	groups: [
 		{ name: 'hero', title: 'Hero', default: true },
-		{ name: 'story', title: 'Process & 3D story' },
+		{ name: 'story', title: 'Process & construction film' },
 		{ name: 'sections', title: 'Sections' },
 		{ name: 'seo', title: 'SEO' }
 	],
@@ -324,7 +324,7 @@ export const homePage = defineType({
 					initialValue: 'scene',
 					options: {
 						list: [
-							{ title: 'Interactive 3D construction scene', value: 'scene' },
+							{ title: 'Construction film (scrubs as visitors scroll)', value: 'scene' },
 							{ title: 'Image', value: 'image' },
 							{ title: 'Video (muted loop)', value: 'video' }
 						],
@@ -354,7 +354,7 @@ export const homePage = defineType({
 			title: 'Construction process',
 			type: 'object',
 			group: 'story',
-			description: 'Scrolling through these steps builds the 3D model in the hero.',
+			description: 'Scrolling through these steps plays the construction film in the hero.',
 			fields: [
 				defineField({ name: 'heading', type: 'string' }),
 				defineField({ name: 'intro', type: 'text', rows: 2 }),

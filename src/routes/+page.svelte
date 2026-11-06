@@ -55,7 +55,7 @@
 			<div class="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
 				<SectionHeading
 					id="insights-heading"
-					number="SB—06"
+					number="SA—06"
 					eyebrow="Insights"
 					heading={home.insightsHeading}
 					intro={home.insightsIntro}
@@ -82,7 +82,7 @@
 			<div class="lg:sticky lg:top-32">
 				<SectionHeading
 					id="faq-heading"
-					number="SB—07"
+					number="SA—07"
 					eyebrow="FAQ"
 					heading={home.faqHeading}
 					size="md"

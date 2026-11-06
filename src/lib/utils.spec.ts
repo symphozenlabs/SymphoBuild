@@ -4,7 +4,7 @@ import { formatArea, formatBedrooms, slugify, toEmbedUrl, whatsappLink } from '.
 
 describe('whatsappLink', () => {
 	const settings = {
-		siteName: 'Sympho Build',
+		siteName: 'Spacecraft Associates',
 		contact: {
 			whatsapp: '+91 90000-00000',
 			whatsappMessage: 'Hello, I would like to know more{context}.'

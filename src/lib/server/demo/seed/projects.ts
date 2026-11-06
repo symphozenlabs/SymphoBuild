@@ -109,7 +109,7 @@ function project(input: ProjectInput): SeedDoc {
 		...rest,
 		seo: seo(
 			`${input.title} — ${locality}, ${city}`,
-			`${input.tagline} Explore plans, specifications, approvals and construction progress for ${input.title} by Sympho Build.`
+			`${input.tagline} Explore plans, specifications, approvals and construction progress for ${input.title} by Spacecraft Associates.`
 		)
 	};
 }
@@ -479,7 +479,7 @@ export const projects: SeedDoc[] = [
 				'Palm Grid Enclave is laid out on a simple, legible grid of avenues lined with native shade trees. Plots are sized for independent homes, with underground utilities already in place.'
 			),
 			p(
-				'Buyers can build independently, or engage Sympho Build for design and construction under a separate agreement.'
+				'Buyers can build independently, or engage Spacecraft Associates for design and construction under a separate agreement.'
 			)
 		),
 		keyFacts: [
@@ -496,7 +496,7 @@ export const projects: SeedDoc[] = [
 		highlights: [
 			'Clear-title land with layout approval',
 			'Underground electrical cabling and water points to each plot',
-			'Optional design-and-build package from Sympho Build'
+			'Optional design-and-build package from Spacecraft Associates'
 		],
 		amenities: [
 			amenity('route', 'Blacktop avenues'),
@@ -570,7 +570,7 @@ export const projects: SeedDoc[] = [
 		],
 		overview: body(
 			p(
-				'Built on the client’s own plot, Terracotta House was designed, approved and constructed by Sympho Build in fourteen months. The walls are exposed wire-cut brick with lime plaster inside.'
+				'Built on the client’s own plot, Terracotta House was designed, approved and constructed by Spacecraft Associates in fourteen months. The walls are exposed wire-cut brick with lime plaster inside.'
 			)
 		),
 		keyFacts: [

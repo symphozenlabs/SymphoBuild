@@ -23,7 +23,7 @@
 		<div class="lg:col-span-4">
 			<SectionHeading
 				id="testimonials-heading"
-				number="SB—05"
+				number="SA—05"
 				eyebrow="Owners & partners"
 				{heading}
 				size="md"

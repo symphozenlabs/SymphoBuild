@@ -1,0 +1,5 @@
+# Never convert line endings in binary assets (PDF byte offsets break otherwise).
+*.pdf binary
+*.mp4 binary
+*.jpg binary
+*.png binary

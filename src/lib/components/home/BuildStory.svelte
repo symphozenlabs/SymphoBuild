@@ -1,158 +1,191 @@
 <!--
-	Home hero + "From drawing board to door key" process timeline, sharing one sticky
-	3D stage. Scrolling through the Sanity-managed process steps constructs the building.
+	Home hero + "From drawing board to door key" process timeline, sharing one sticky stage.
+	Scrolling through the Sanity-managed process steps scrubs a photoreal construction film
+	(static/hero; timeline in $lib/hero-film): site drawings → marked-out plot → frame →
+	envelope → finishes → blue-hour handover.
 
 	Progressive layers:
-	  1. SSR / no-JS  → hero + steps in normal flow over an SVG blueprint drawing
-	  2. JS, no WebGL → same, with the drawing animating in
-	  3. WebGL        → the procedural TowerScene (lazy-loaded after first paint)
-	Reduced motion keeps the stage-by-stage construction but fixes the camera.
+	  1. SSR / no-JS          → hero + steps in normal flow over the film's first frame
+	  2. Reduced motion /
+	     data saver           → a still from the film per step, cross-faded (no scrubbing)
+	  3. Default              → the film downloads after first paint and is scrubbed by scroll
+	Landscape screens show the film full-bleed; portrait phones show it letterboxed at the top
+	of the screen, above the docked step card.
 -->
 <script lang="ts">
 	import ArrowDown from '@lucide/svelte/icons/arrow-down';
 	import { onMount } from 'svelte';
 	import type { HomePage } from '$lib/types';
 	import { cx } from '$lib/utils';
+	import { FILM, filmTime, stageWindow, stillAt } from '$lib/hero-film';
 	import { prefersReducedMotion, reveal } from '$lib/motion/actions';
 	import CtaButton from '$lib/components/ui/CtaButton.svelte';
 	import SplitText from '$lib/components/ui/SplitText.svelte';
 	import Img from '$lib/components/ui/Img.svelte';
-	import BlueprintDrawing from './BlueprintDrawing.svelte';
 
 	let { hero, process }: { hero: HomePage['hero']; process: HomePage['process'] } = $props();
 
 	const steps = $derived(process?.steps ?? []);
+	// "scene" is the stored value for the construction film (it used to be a 3D scene).
 	const mode = $derived(hero?.mediaMode ?? 'scene');
 
 	let section: HTMLElement | undefined = $state();
 	let heroEl: HTMLElement | undefined = $state();
-	let canvas: HTMLCanvasElement | undefined = $state();
+	let video: HTMLVideoElement | undefined = $state();
+	let posterEl: HTMLImageElement | undefined = $state();
 	let stepEls: HTMLElement[] = $state([]);
-	let sceneReady = $state(false);
-	let posterGone = $state(false);
 	let active = $state(-1);
 	let heroProgress = $state(0);
-
-	// Stage → build-progress windows (mirrors PHASES in tower-scene.ts, kept here so the
-	// three.js chunk is not needed to compute layout).
-	const PHASES: Record<string, [number, number]> = {
-		design: [0, 0.16],
-		approvals: [0.16, 0.32],
-		foundation: [0.24, 0.36],
-		structure: [0.32, 0.55],
-		envelope: [0.55, 0.72],
-		finishes: [0.72, 0.88],
-		handover: [0.88, 1]
-	};
+	let filmReady = $state(false);
+	/** Set when the film is skipped (reduced motion, data saver, load failure). */
+	let stillMode = $state(false);
+	let still = $state<string>(FILM.poster);
 
 	onMount(() => {
-		if (!section || !heroEl) return;
-		type Scene = import('$lib/three/tower-scene').TowerScene;
-		let scene: Scene | undefined;
+		if (!section || !heroEl || mode !== 'scene') return;
+		const hasFoundation = steps.some((s) => s.stage === 'foundation');
+		const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+			.connection;
+		stillMode = prefersReducedMotion() || !!connection?.saveData;
+
 		let disposed = false;
-		let raf = 0;
-		let posterTimer: ReturnType<typeof setTimeout> | undefined;
+		let visible = true;
+		let measureRaf = 0;
+		let tickRaf = 0;
+		let target = 0; // film time the scroll position asks for
+		let shown = 0; // eased film time actually displayed
+		let objectUrl: string | undefined;
+		// Matches the CSS breakpoint where the film switches from letterboxed to full-bleed.
+		const landscape = window.matchMedia('(min-aspect-ratio: 5/4)');
 
 		const measure = () => {
-			raf = 0;
-			const vh = window.innerHeight;
+			measureRaf = 0;
+			const line = window.innerHeight * 0.55;
 			const hr = heroEl!.getBoundingClientRect();
 			heroProgress = Math.min(1, Math.max(0, -hr.top / (hr.height * 0.85)));
-			let idx = -1;
+			let index = -1;
 			let frac = 0;
-			const line = vh * 0.55;
+			// Portrait: the film is letterboxed at the top, so fade step cards out as they scroll
+			// up into it rather than letting them cover the building.
+			const filmBottom =
+				!landscape.matches && posterEl ? posterEl.getBoundingClientRect().bottom : 0;
 			stepEls.forEach((el, i) => {
 				const r = el.getBoundingClientRect();
 				if (r.top <= line) {
-					idx = i;
+					index = i;
 					frac = Math.min(1, Math.max(0, (line - r.top) / r.height));
 				}
+				const card = el.firstElementChild as HTMLElement | null;
+				if (!card) return;
+				if (filmBottom) {
+					const top = card.getBoundingClientRect().top;
+					card.style.opacity = String(Math.min(1, Math.max(0, (top - filmBottom + 24) / 96)));
+				} else if (card.style.opacity) {
+					card.style.opacity = '';
+				}
 			});
-			active = idx;
-			let build = 0;
-			if (idx >= 0) {
-				const step = steps[idx];
-				const win = (step?.stage && PHASES[step.stage]) || [
-					idx / steps.length,
-					(idx + 1) / steps.length
-				];
-				build = win[0] + (win[1] - win[0]) * frac;
+			active = index;
+			const opts = { heroProgress, index, stage: steps[index]?.stage, count: steps.length };
+			target = filmTime({ ...opts, frac, hasFoundation });
+			if (stillMode) {
+				// Show where the step ends up rather than a mid-transition frame.
+				still =
+					index < 0
+						? FILM.poster
+						: stillAt(stageWindow(opts.stage, index, steps.length, hasFoundation)[1]);
 			}
-			scene?.setHero(heroProgress);
-			scene?.setBuild(build);
+			startTick();
 		};
 		const schedule = () => {
-			if (!raf) raf = requestAnimationFrame(measure);
+			if (!measureRaf) measureRaf = requestAnimationFrame(measure);
 		};
-		const onPointer = (e: PointerEvent) => {
-			scene?.setPointer(
-				(e.clientX / window.innerWidth) * 2 - 1,
-				(e.clientY / window.innerHeight) * 2 - 1
-			);
+
+		// Ease the displayed time towards the target so fast scrolls glide instead of jumping,
+		// and only issue a new seek once the previous one has finished.
+		const tick = () => {
+			tickRaf = 0;
+			if (!video || !filmReady || !visible) return;
+			const diff = target - shown;
+			shown = Math.abs(diff) < 1 / 48 ? target : shown + diff * 0.2;
+			if (!video.seeking && Math.abs(video.currentTime - shown) > 1 / 60) {
+				video.currentTime = shown;
+			}
+			if (shown !== target) tickRaf = requestAnimationFrame(tick);
+		};
+		const startTick = () => {
+			if (!tickRaf && filmReady && visible) tickRaf = requestAnimationFrame(tick);
 		};
 
 		window.addEventListener('scroll', schedule, { passive: true });
 		window.addEventListener('resize', schedule, { passive: true });
 		measure();
 
-		const io = new IntersectionObserver(([entry]) => scene?.setVisible(entry.isIntersecting));
+		const io = new IntersectionObserver(([entry]) => {
+			visible = entry.isIntersecting;
+			startTick();
+		});
 		io.observe(section);
 
-		const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
-			.connection;
-		const canUseScene = mode === 'scene' && canvas && !connection?.saveData;
-
-		const init = async () => {
-			if (!canUseScene || disposed) return;
-			const { TowerScene, supportsWebGL, isIntegratedGPU } = await import('$lib/three/tower-scene');
-			if (disposed || !supportsWebGL() || !canvas) return;
-			const nav = navigator as Navigator & { deviceMemory?: number };
-			const weak =
-				window.innerWidth < 768 ||
-				(nav.hardwareConcurrency ?? 8) <= 4 ||
-				(nav.deviceMemory ?? 8) <= 4;
+		// Download the whole film into memory so every seek is instant, after first paint.
+		const load = async () => {
+			if (disposed || stillMode || !video) return;
+			const wide = window.innerWidth >= 900 && window.devicePixelRatio * window.innerWidth >= 1100;
+			const src = wide ? FILM.sources.hd : FILM.sources.sd;
 			try {
-				scene = new TowerScene(canvas, {
-					quality: weak ? 'low' : isIntegratedGPU() ? 'medium' : 'high',
-					reducedMotion: prefersReducedMotion(),
-					layout: window.innerWidth >= 1024 ? 'split' : 'center',
-					onError: () => (sceneReady = false)
-				});
-				const resize = () => {
-					const r = canvas!.getBoundingClientRect();
-					scene?.setLayout(window.innerWidth >= 1024 ? 'split' : 'center');
-					scene?.resize(r.width, r.height);
-				};
-				resize();
-				ro.observe(canvas);
-				window.addEventListener('pointermove', onPointer, { passive: true });
-				measure();
-				requestAnimationFrame(() => (sceneReady = true));
-				posterTimer = setTimeout(() => (posterGone = true), 1800);
+				const res = await fetch(src);
+				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				const blob = await res.blob();
+				if (disposed) return;
+				objectUrl = URL.createObjectURL(blob);
+				video.src = objectUrl;
 			} catch {
-				sceneReady = false;
+				if (disposed) return;
+				// Fall back to streaming with range requests.
+				video.preload = 'auto';
+				video.src = src;
 			}
+			video.addEventListener(
+				'loadeddata',
+				async () => {
+					if (disposed || !video) return;
+					// iOS only paints seeked frames once the element has played.
+					try {
+						await video.play();
+					} catch {
+						/* autoplay refused; seeking still works elsewhere */
+					}
+					video.pause();
+					shown = target;
+					video.currentTime = shown;
+					filmReady = true;
+					startTick();
+				},
+				{ once: true }
+			);
+			video.addEventListener(
+				'error',
+				() => {
+					stillMode = true;
+					schedule();
+				},
+				{ once: true }
+			);
 		};
-		const ro = new ResizeObserver(() => {
-			if (!scene || !canvas) return;
-			const r = canvas.getBoundingClientRect();
-			scene.setLayout(window.innerWidth >= 1024 ? 'split' : 'center');
-			scene.resize(r.width, r.height);
-		});
-		// Defer the 3D chunk until the browser is idle so it never competes with LCP.
 		const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
-		idle(() => void init());
+		idle(() => void load());
 
 		return () => {
 			disposed = true;
-			cancelAnimationFrame(raf);
-			clearTimeout(posterTimer);
+			cancelAnimationFrame(measureRaf);
+			cancelAnimationFrame(tickRaf);
 			io.disconnect();
-			ro.disconnect();
 			window.removeEventListener('scroll', schedule);
 			window.removeEventListener('resize', schedule);
-			window.removeEventListener('pointermove', onPointer);
-			scene?.dispose();
+			if (video) {
+				video.removeAttribute('src');
+				video.load();
+			}
+			if (objectUrl) URL.revokeObjectURL(objectUrl);
 		};
 	});
 </script>
@@ -162,9 +195,9 @@
 	class="on-dark relative bg-ink-900 text-limestone-50"
 	aria-label="Introduction and construction process"
 >
-	<!-- Sticky stage: 3D scene / blueprint poster, with HUD overlays. The absolute track bounds
-	     the sticky element to this section, so the stage ends exactly where the section ends
-	     instead of overhanging (and covering) the next section. -->
+	<!-- Sticky stage: construction film / image / video, with HUD overlays. The absolute track
+	     bounds the sticky element to this section, so the stage ends exactly where the section
+	     ends instead of overhanging (and covering) the next section. -->
 	<div class="pointer-events-none absolute inset-0" aria-hidden="true">
 		<div class="sticky top-0 h-svh overflow-hidden">
 			{#if mode === 'image' && hero?.image}
@@ -185,26 +218,44 @@
 					preload="metadata"
 				></video>
 			{:else}
-				<!-- Poster fallback; removed once the 3D scene has faded in so the browser stops
-				     rasterising layers nobody can see (that raster work competes with WebGL). -->
-				{#if !(sceneReady && posterGone)}
-					<div class="blueprint-grid absolute inset-0"></div>
-					<div
+				<div class="blueprint-grid absolute inset-0"></div>
+				<!-- First frame: the LCP image, and what no-JS visitors see. -->
+				<img
+					bind:this={posterEl}
+					src={FILM.poster}
+					alt=""
+					width={FILM.width}
+					height={FILM.height}
+					fetchpriority="high"
+					decoding="async"
+					class="film-frame"
+				/>
+				{#if stillMode}
+					{#key still}
+						<img
+							src={still}
+							alt=""
+							width={FILM.width}
+							height={FILM.height}
+							decoding="async"
+							class="film-frame film-still"
+						/>
+					{/key}
+				{:else}
+					<video
+						bind:this={video}
 						class={cx(
-							'absolute inset-0 flex items-start justify-center pt-[14svh] text-copper-400 transition-opacity duration-1000 lg:items-center lg:justify-end lg:pt-0 lg:pr-[6vw]',
-							sceneReady && 'opacity-0'
+							'film-frame transition-opacity duration-700 ease-out',
+							filmReady ? 'opacity-100' : 'opacity-0'
 						)}
-					>
-						<BlueprintDrawing class="w-[min(92vw,34rem)] lg:w-[min(46vw,44rem)]" />
-					</div>
+						muted
+						playsinline
+						preload="none"
+						disablepictureinpicture
+						disableremoteplayback
+						tabindex="-1"
+					></video>
 				{/if}
-				<canvas
-					bind:this={canvas}
-					class={cx(
-						'absolute inset-0 h-full w-full transition-opacity duration-[1600ms] ease-out',
-						sceneReady ? 'opacity-100' : 'opacity-0'
-					)}
-				></canvas>
 			{/if}
 			<!-- legibility gradients -->
 			<div
@@ -218,7 +269,7 @@
 			<div
 				class="absolute top-[calc(var(--spacing-header)+1.25rem)] right-gutter hidden text-right font-mono text-label text-limestone-300 uppercase md:block"
 			>
-				<p>Drawing SB—01 · Scale 1:500</p>
+				<p>Drawing SA—01 · Scale 1:500</p>
 				{#if hero?.coordinatesLabel}<p class="mt-1 text-limestone-400">
 						{hero.coordinatesLabel}
 					</p>{/if}
@@ -255,30 +306,37 @@
 
 	<div class="relative z-10">
 		<!-- Hero -->
+		<!-- Sized to the window height as well as its width, so the headline, intro and CTAs
+		     always fit in the first screen, even in short laptop windows. -->
 		<header
 			bind:this={heroEl}
-			class="container-page flex min-h-svh flex-col justify-end pt-36 pb-16 sm:pb-24"
+			class="container-page flex min-h-svh flex-col justify-end pt-[calc(var(--spacing-header)+4svh)] pb-[clamp(1.5rem,6svh,6rem)]"
 		>
 			<div class="max-w-3xl lg:max-w-[44vw]">
-				{#if hero?.eyebrow}<p class="sheet-label mb-8" use:reveal>{hero.eyebrow}</p>{/if}
+				{#if hero?.eyebrow}<p class="sheet-label mb-[clamp(0.75rem,3svh,2rem)]" use:reveal>
+						{hero.eyebrow}
+					</p>{/if}
 				<SplitText
 					as="h1"
-					text={hero?.headline ?? 'Sympho Build'}
-					class="text-display-2xl font-light tracking-[-0.04em] text-balance [&_.split-word:nth-last-child(-n+2)]:italic"
+					text={hero?.headline ?? 'Spacecraft Associates'}
+					class="text-[length:min(var(--text-display-2xl),9svh)] leading-[0.92] font-light tracking-[-0.04em] text-balance [&_.split-word:nth-last-child(-n+2)]:italic"
 				/>
 				{#if hero?.intro}
-					<p class="mt-8 max-w-xl text-lede text-limestone-200" use:reveal={{ delay: 350 }}>
+					<p
+						class="mt-[clamp(0.75rem,3svh,2rem)] max-w-xl text-lede text-limestone-200"
+						use:reveal={{ delay: 350 }}
+					>
 						{hero.intro}
 					</p>
 				{/if}
-				<div class="mt-10 flex flex-wrap gap-3" use:reveal={{ delay: 500 }}>
+				<div class="mt-[clamp(1rem,4svh,2.5rem)] flex flex-wrap gap-3" use:reveal={{ delay: 500 }}>
 					<CtaButton cta={hero?.primaryCta} size="lg" variant="primary" />
 					<CtaButton cta={hero?.secondaryCta} size="lg" variant="outline-light" />
 				</div>
 			</div>
 			<a
 				href="#process"
-				class="mt-16 inline-flex items-center gap-3 self-start font-mono text-label text-limestone-300 uppercase"
+				class="mt-[clamp(1.25rem,6svh,4rem)] inline-flex items-center gap-3 self-start font-mono text-label text-limestone-300 uppercase [@media(max-height:640px)]:hidden"
 				style:opacity={1 - heroProgress * 2}
 			>
 				<span
@@ -313,8 +371,8 @@
 							<article
 								class={cx(
 									// Phones/tablets: the card docks above the contact bar while its stage is active,
-									// keeping the top half of the screen clear for the building. Solid tint rather than
-									// backdrop-blur: blurring a live WebGL canvas every frame is what made scrolling stutter.
+									// keeping the top of the screen clear for the film. Solid tint rather than
+									// backdrop-blur: blurring a playing video every frame makes scrolling stutter.
 									'sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] w-full max-w-md rounded-md border bg-ink-900/90 p-5 transition-[border-color] duration-700 ease-out-expo sm:p-7 lg:static lg:bg-ink-900/85 lg:p-9',
 									i === active ? 'border-copper-400/60' : 'border-limestone-100/12'
 								)}
@@ -354,6 +412,37 @@
 </section>
 
 <style>
+	/* Portrait screens: the 16:9 film sits letterboxed under the header.
+	   Landscape screens: full-bleed, with the building in the right third. */
+	.film-frame {
+		position: absolute;
+		inset-inline: 0;
+		top: calc(var(--spacing-header) + 0.75rem);
+		width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		/* Fade the lower edge into the ink background so hero copy that runs over it stays legible. */
+		mask-image: linear-gradient(to bottom, #000 45%, transparent);
+		filter: brightness(0.8);
+	}
+	@media (min-aspect-ratio: 5/4) {
+		.film-frame {
+			inset: 0;
+			height: 100%;
+			aspect-ratio: auto;
+			mask-image: none;
+			filter: none;
+		}
+	}
+	.film-still {
+		animation: still-in 600ms ease-out both;
+	}
+	@keyframes still-in {
+		from {
+			opacity: 0;
+		}
+	}
 	@media (prefers-reduced-motion: no-preference) {
 		:global(.scroll-cue) {
 			animation: cue 2.2s var(--ease-in-out-quint) infinite;

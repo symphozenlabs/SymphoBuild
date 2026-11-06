@@ -5,7 +5,7 @@
 @custom-variant js (&:where(.js *));
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Sympho Build — design tokens
+   Spacecraft Associates — design tokens
    "Drawing to building": an architecture-journal palette of ink, limestone,
    copper redline and sage. Every token below is available as a Tailwind
    utility (e.g. bg-ink-900, text-copper-600, font-display, ease-out-expo).
@@ -209,7 +209,7 @@
 		@apply mx-auto w-full max-w-[96rem] px-gutter;
 	}
 
-	/* Drawing-sheet label, e.g. "SB—03 · Services" */
+	/* Drawing-sheet label, e.g. "SA—03 · Services" */
 	.sheet-label {
 		@apply inline-flex items-center gap-3 font-mono text-label text-ink-500 uppercase;
 	}
@@ -281,7 +281,7 @@
 	}
 
 	/* Prose — long-form articles & rich text */
-	.prose-sympho {
+	.prose-spacecraft {
 		@apply prose max-w-none prose-neutral;
 		--tw-prose-body: var(--color-ink-700);
 		--tw-prose-headings: var(--color-ink-900);
@@ -295,16 +295,16 @@
 		font-size: 1.075rem;
 		line-height: 1.75;
 	}
-	.prose-sympho :where(h2, h3, h4) {
+	.prose-spacecraft :where(h2, h3, h4) {
 		@apply font-display font-normal tracking-tight;
 	}
-	.prose-sympho :where(h2) {
+	.prose-spacecraft :where(h2) {
 		font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem);
 	}
-	.prose-sympho :where(blockquote) {
+	.prose-spacecraft :where(blockquote) {
 		@apply font-display text-2xl font-normal italic;
 	}
-	.on-dark .prose-sympho {
+	.on-dark .prose-spacecraft {
 		--tw-prose-body: var(--color-limestone-200);
 		--tw-prose-headings: var(--color-limestone-50);
 		--tw-prose-links: var(--color-copper-300);
