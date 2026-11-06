@@ -148,12 +148,15 @@
 				'loadeddata',
 				async () => {
 					if (disposed || !video) return;
-					// iOS only paints seeked frames once the element has played.
-					try {
-						await video.play();
-					} catch {
-						/* autoplay refused; seeking still works elsewhere */
-					}
+					// iOS only paints seeked frames once the element has played. Never wait on it,
+					// though: browsers can leave play() pending indefinitely for a muted video that
+					// is not visible yet, which would keep the film hidden behind its first frame.
+					const played = video.play();
+					played?.catch(() => {
+						/* autoplay refused; seeking still works */
+					});
+					await Promise.race([played, new Promise((r) => setTimeout(r, 400))]).catch(() => {});
+					if (disposed || !video) return;
 					video.pause();
 					shown = target;
 					video.currentTime = shown;
@@ -220,6 +223,8 @@
 			{:else}
 				<div class="blueprint-grid absolute inset-0"></div>
 				<!-- First frame: the LCP image, and what no-JS visitors see. -->
+				<!-- Hidden once the film (or a still) is showing: on portrait screens the frames'
+				     faded lower edge is translucent, so the poster would ghost through it. -->
 				<img
 					bind:this={posterEl}
 					src={FILM.poster}
@@ -228,7 +233,11 @@
 					height={FILM.height}
 					fetchpriority="high"
 					decoding="async"
-					class="film-frame"
+					class={cx(
+						'film-frame transition-opacity duration-300',
+						filmReady && 'opacity-0 delay-700',
+						stillMode && 'opacity-0'
+					)}
 				/>
 				{#if stillMode}
 					{#key still}
