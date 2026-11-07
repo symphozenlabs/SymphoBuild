@@ -47,25 +47,26 @@ All tokens live in [`src/routes/layout.css`](src/routes/layout.css) as Tailwind 
 
 ### Signature moment: the construction story
 
-The home page hero and the "From drawing board to door key" timeline share one sticky stage showing a 30-second photoreal construction film ([`static/hero/`](static/hero/), generated with Higgsfield). Scrolling scrubs the film, so the building goes up as visitors move through the process steps managed in Sanity:
+The home page hero and the "From drawing board to door key" timeline share one sticky stage showing a 35-second photoreal 1080p construction film ([`static/hero/`](static/hero/), generated with Higgsfield and upscaled with FLUX.3 Upscale). Scrolling scrubs the film, so the building goes up as visitors move through the process steps managed in Sanity:
 
 1. Printed drawings on a table at the site at first light (design).
 2. The camera rises to the plot, marked out in lime powder and pegs (approvals).
 3. Excavation, the foundation raft, then the concrete frame rising with a tower crane (foundation and structure).
 4. Blockwork, glazing and terracotta fins close in the building in golden light (envelope).
 5. The crane comes down, landscaping goes in and the windows light up at dusk (finishes).
-6. A blue-hour pull-back reveals the finished tower (handover).
+6. A blue-hour pull-back reveals the finished tower (aftercare).
+7. At the lit entrance, the project manager hands the keys to the new homeowners (handover).
 
 Editors choose which stage each process step plays (**Home page → Process & construction film**). The film timeline lives in [`src/lib/hero-film.ts`](src/lib/hero-film.ts).
 
 How the film degrades and performs:
 
 - **First paint / no JS:** the film's first frame is the LCP image, and all step content stays readable in normal document flow.
-- **Loading:** after first paint the film (10.7 MB at 720p, or 4.6 MB at 480p on small screens) is downloaded once into memory so every seek is instant. Both encodes put a keyframe every 8 frames so scrubbing backwards stays smooth.
+- **Loading:** after first paint the film streams in (1920×1080, near-lossless H.264 at CRF 20, about 60 MB). Scrubbing starts as soon as the first seconds have buffered and the browser keeps buffering ahead. A keyframe every 16 frames keeps backward scrubbing smooth; large jumps (fast scrolls, anchor links) seek straight to the target instead of easing.
 - **Phones:** in portrait the 16:9 film sits letterboxed at the top of the screen, above the docked step card.
 - **Reduced motion or data saver:** the film is not downloaded; a still from the film cross-fades in for each step.
 
-To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored) and run its `stitch.sh`, then re-encode with the settings above.
+To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored: 720p originals in `clips/`, 1080p upscales in `clips-1080/`), run its `stitch.sh`, then re-encode with the settings above and bump `VERSION` in `hero-film.ts`.
 
 Other motion is built with transforms and opacity only. It includes:
 

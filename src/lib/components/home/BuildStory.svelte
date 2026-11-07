@@ -1,8 +1,8 @@
 <!--
 	Home hero + "From drawing board to door key" process timeline, sharing one sticky stage.
 	Scrolling through the Sanity-managed process steps scrubs a photoreal construction film
-	(static/hero; timeline in $lib/hero-film): site drawings → marked-out plot → frame →
-	envelope → finishes → blue-hour handover.
+	(static/hero, 1080p; timeline in $lib/hero-film): site drawings → marked-out plot → frame →
+	envelope → finishes → blue-hour reveal → keys handed to the homeowners.
 
 	Progressive layers:
 	  1. SSR / no-JS          → hero + steps in normal flow over the film's first frame
@@ -33,6 +33,7 @@
 	let heroEl: HTMLElement | undefined = $state();
 	let video: HTMLVideoElement | undefined = $state();
 	let posterEl: HTMLImageElement | undefined = $state();
+	let introEl: HTMLDivElement | undefined = $state();
 	let stepEls: HTMLElement[] = $state([]);
 	let active = $state(-1);
 	let heroProgress = $state(0);
@@ -54,7 +55,6 @@
 		let tickRaf = 0;
 		let target = 0; // film time the scroll position asks for
 		let shown = 0; // eased film time actually displayed
-		let objectUrl: string | undefined;
 		// Matches the CSS breakpoint where the film switches from letterboxed to full-bleed.
 		const landscape = window.matchMedia('(min-aspect-ratio: 5/4)');
 
@@ -69,6 +69,15 @@
 			// up into it rather than letting them cover the building.
 			const filmBottom =
 				!landscape.matches && posterEl ? posterEl.getBoundingClientRect().bottom : 0;
+			// The process label, heading and intro fade line by line the same way as they scroll
+			// up over the film.
+			// Inline opacity only while fading, so it never overrides the scroll-reveal animation.
+			for (const el of introEl?.children ?? []) {
+				const fade = filmBottom
+					? Math.max(0, (el.getBoundingClientRect().top - filmBottom + 24) / 96)
+					: 1;
+				(el as HTMLElement).style.opacity = fade < 1 ? String(fade) : '';
+			}
 			stepEls.forEach((el, i) => {
 				const r = el.getBoundingClientRect();
 				if (r.top <= line) {
@@ -106,7 +115,9 @@
 			tickRaf = 0;
 			if (!video || !filmReady || !visible) return;
 			const diff = target - shown;
-			shown = Math.abs(diff) < 1 / 48 ? target : shown + diff * 0.2;
+			// Ease small moves so scrolling glides; jump straight there on big moves (fast scroll,
+			// scrollbar drag, anchor links) so the film never trails seconds behind the page.
+			shown = Math.abs(diff) < 1 / 48 || Math.abs(diff) > 1.5 ? target : shown + diff * 0.2;
 			if (!video.seeking && Math.abs(video.currentTime - shown) > 1 / 60) {
 				video.currentTime = shown;
 			}
@@ -126,24 +137,14 @@
 		});
 		io.observe(section);
 
-		// Download the whole film into memory so every seek is instant, after first paint.
+		// Stream the film after first paint. At 1080p near-lossless it is ~60 MB, so waiting for
+		// the whole file would leave the poster up for a long time on average connections;
+		// streaming starts scrubbing within a second or two while the browser keeps buffering
+		// ahead (preload="auto"), and seeks within the buffered part are instant.
 		const load = async () => {
 			if (disposed || stillMode || !video) return;
-			const wide = window.innerWidth >= 900 && window.devicePixelRatio * window.innerWidth >= 1100;
-			const src = wide ? FILM.sources.hd : FILM.sources.sd;
-			try {
-				const res = await fetch(src);
-				if (!res.ok) throw new Error(`HTTP ${res.status}`);
-				const blob = await res.blob();
-				if (disposed) return;
-				objectUrl = URL.createObjectURL(blob);
-				video.src = objectUrl;
-			} catch {
-				if (disposed) return;
-				// Fall back to streaming with range requests.
-				video.preload = 'auto';
-				video.src = src;
-			}
+			video.preload = 'auto';
+			video.src = FILM.src;
 			video.addEventListener(
 				'loadeddata',
 				async () => {
@@ -188,7 +189,6 @@
 				video.removeAttribute('src');
 				video.load();
 			}
-			if (objectUrl) URL.revokeObjectURL(objectUrl);
 		};
 	});
 </script>
@@ -360,7 +360,7 @@
 		<!-- Process timeline -->
 		{#if steps.length}
 			<div id="process" class="container-page pt-section-sm pb-[30svh]">
-				<div class="max-w-xl">
+				<div class="max-w-xl" bind:this={introEl}>
 					<p class="sheet-label" use:reveal>Our process</p>
 					{#if process?.heading}
 						<SplitText text={process.heading} class="mt-6 text-display-lg font-light" />

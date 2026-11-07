@@ -185,7 +185,8 @@ export const processStep = defineType({
 					{ title: 'Structure (foundation to full frame)', value: 'structure' },
 					{ title: 'Envelope (glazing & fins)', value: 'envelope' },
 					{ title: 'Finishes (landscape & lights)', value: 'finishes' },
-					{ title: 'Handover (blue-hour reveal)', value: 'handover' }
+					{ title: 'Aftercare (blue-hour reveal)', value: 'aftercare' },
+					{ title: 'Handover (keys to the homeowners)', value: 'handover' }
 				]
 			}
 		})

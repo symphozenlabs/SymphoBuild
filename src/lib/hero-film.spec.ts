@@ -17,12 +17,20 @@ describe('hero film timeline', () => {
 		).toBeCloseTo((a + b) / 2);
 	});
 
-	it('the seeded six-step sequence only ever moves the film forward', () => {
-		const stages = ['design', 'approvals', 'structure', 'envelope', 'finishes', 'handover'];
+	it('the seeded seven-step sequence only ever moves the film forward', () => {
+		const stages = [
+			'design',
+			'approvals',
+			'structure',
+			'envelope',
+			'finishes',
+			'aftercare',
+			'handover'
+		];
 		let last = -1;
 		stages.forEach((stage, i) => {
 			for (const frac of [0, 0.5, 1]) {
-				const t = filmTime({ heroProgress: 1, index: i, frac, stage, count: 6 });
+				const t = filmTime({ heroProgress: 1, index: i, frac, stage, count: 7 });
 				expect(t).toBeGreaterThanOrEqual(last);
 				last = t;
 			}
@@ -36,13 +44,21 @@ describe('hero film timeline', () => {
 	});
 
 	it('shares the film evenly between steps without a stage', () => {
-		expect(stageWindow(undefined, 0, 2)).toEqual([HERO_SPAN, (HERO_SPAN + FILM.duration) / 2]);
+		const [a, b] = stageWindow(undefined, 0, 2);
+		expect(a).toBe(HERO_SPAN);
+		expect(b).toBeCloseTo((HERO_SPAN + FILM.duration) / 2);
 		expect(stageWindow('unknown', 1, 2)[1]).toBeCloseTo(FILM.duration);
 	});
 
 	it('picks the nearest still for reduced motion', () => {
 		expect(stillAt(0)).toBe('/hero/stage-0.jpg');
 		expect(stillAt(15)).toBe('/hero/stage-3.jpg');
-		expect(stillAt(FILM.duration)).toBe('/hero/stage-6.jpg');
+		expect(stillAt(STAGE_WINDOWS.aftercare[1])).toBe('/hero/stage-6.jpg');
+		expect(stillAt(FILM.duration)).toBe('/hero/stage-7.jpg');
+	});
+
+	it('ends aftercare where the handover scene begins', () => {
+		expect(STAGE_WINDOWS.aftercare[1]).toBe(STAGE_WINDOWS.handover[0]);
+		expect(STAGE_WINDOWS.handover[1]).toBe(FILM.duration);
 	});
 });

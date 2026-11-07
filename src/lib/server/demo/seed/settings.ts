@@ -6,8 +6,6 @@ export const siteSettings: SeedDoc = {
 	_type: 'siteSettings',
 	siteName: 'Spacecraft Associates',
 	tagline: 'Design-led construction & real estate',
-	demoNotice:
-		'Demo content — every word, figure and image here is a placeholder to be replaced in Sanity Studio before launch.',
 	logoText: 'Spacecraft Associates',
 	contact: {
 		phone: '+919000000000',
@@ -241,7 +239,7 @@ export const homePage: SeedDoc = {
 	process: {
 		heading: 'From drawing board to door key.',
 		intro:
-			'Scroll through the six stages every Spacecraft Associates project moves through. The same team, the same file, from the first line to the final walkthrough.',
+			'Scroll through the seven stages every Spacecraft Associates project moves through. The same team, the same file, from the first line to the final walkthrough.',
 		steps: [
 			{
 				_key: k(),
@@ -285,11 +283,19 @@ export const homePage: SeedDoc = {
 			},
 			{
 				_key: k(),
-				stage: 'handover',
-				title: 'Handover & aftercare',
+				stage: 'aftercare',
+				title: 'Aftercare',
 				duration: 'Ongoing',
 				description:
-					"Keys, approvals, warranties and an owner's manual — backed by a defect-liability programme with a named contact."
+					'A defect-liability programme with a named contact, scheduled check-ins and prompt repairs after you move in.'
+			},
+			{
+				_key: k(),
+				stage: 'handover',
+				title: 'Handover',
+				duration: 'Completion day',
+				description:
+					"Keys, approvals, warranties and an owner's manual, handed over in person with a walkthrough of your new home."
 			}
 		]
 	},

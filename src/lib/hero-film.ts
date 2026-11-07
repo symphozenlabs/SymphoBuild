@@ -1,23 +1,21 @@
 /**
- * Timeline of the home-page construction film (static/hero, generated with Higgsfield).
- * The film is one continuous shot: drawings on the site table → plot marked out →
- * excavation and frame → envelope → finishes → blue-hour handover. Scrolling through the
- * process steps scrubs it; each step's `stage` (set in Sanity) picks its window below.
+ * Timeline of the home-page construction film (static/hero, generated with Higgsfield and
+ * upscaled to 1080p). Drawings on the site table → plot marked out → excavation and frame →
+ * envelope → finishes → blue-hour reveal (aftercare) → the keys handed to the homeowners
+ * (handover). Scrolling through the process steps scrubs it; each step's `stage` (set in
+ * Sanity) picks its window below.
  */
 
 /** Bump when the film files are re-encoded so browsers and CDNs fetch the new versions. */
-const VERSION = '2026-11-06';
+const VERSION = '2026-11-07';
 
 export const FILM = {
-	duration: 29.875,
-	width: 1280,
-	height: 720,
+	duration: 35.166,
+	width: 1920,
+	height: 1080,
 	poster: '/hero/hero-poster.jpg',
-	/** Scrub-optimised encodes (keyframe every 8 frames, no B-frames, no audio). */
-	sources: {
-		hd: `/hero/hero-scrub-720.mp4?v=${VERSION}`,
-		sd: `/hero/hero-scrub-480.mp4?v=${VERSION}`
-	}
+	/** Scrub-optimised 1080p encode (keyframe every 8 frames, no B-frames, no audio). */
+	src: `/hero/hero-scrub-1080.mp4?v=${VERSION}`
 } as const;
 
 /** Seconds of film that play while the hero itself scrolls away. */
@@ -31,7 +29,8 @@ export const STAGE_WINDOWS: Record<string, readonly [number, number]> = {
 	structure: [9.3, 15.8], // raft → full concrete frame (includes foundation unless that has its own step)
 	envelope: [15.8, 20.6], // blockwork, glazing, terracotta fins
 	finishes: [20.6, 24.9], // crane down, landscape, lights on
-	handover: [24.9, FILM.duration] // blue-hour pull-back
+	aftercare: [24.9, 29.0], // blue-hour pull-back over the finished tower
+	handover: [29.0, FILM.duration] // keys handed to the homeowners at the entrance
 };
 
 /** Stills taken from the film, used for reduced motion / data saver instead of scrubbing. */
@@ -42,7 +41,8 @@ export const STILLS = [
 	{ src: '/hero/stage-3.jpg', at: 15.5 },
 	{ src: '/hero/stage-4.jpg', at: 20.3 },
 	{ src: '/hero/stage-5.jpg', at: 24.6 },
-	{ src: '/hero/stage-6.jpg', at: 29.7 }
+	{ src: '/hero/stage-6.jpg', at: 28.7 },
+	{ src: '/hero/stage-7.jpg', at: 35.0 }
 ] as const;
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
