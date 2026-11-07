@@ -8,7 +8,8 @@
 	  1. SSR / no-JS          → hero + steps in normal flow over the film's first frame
 	  2. Reduced motion /
 	     data saver           → a still from the film per step, cross-faded (no scrubbing)
-	  3. Default              → the film downloads after first paint and is scrubbed by scroll
+	  3. Default              → the film downloads after first paint in stage-sized segments and is
+	                            scrubbed by scroll; a segment still on its way shows its stage still
 	Landscape screens show the film full-bleed; portrait phones show it letterboxed at the top
 	of the screen, above the docked step card.
 -->
@@ -17,7 +18,16 @@
 	import { onMount } from 'svelte';
 	import type { HomePage } from '$lib/types';
 	import { cx } from '$lib/utils';
-	import { FILM, filmTime, stageWindow, stillAt } from '$lib/hero-film';
+	import {
+		FILM,
+		SEGMENTS,
+		filmTime,
+		loadOrder,
+		segmentAt,
+		segmentTime,
+		stepWindows,
+		stillAt
+	} from '$lib/hero-film';
 	import { prefersReducedMotion, reveal } from '$lib/motion/actions';
 	import CtaButton from '$lib/components/ui/CtaButton.svelte';
 	import SplitText from '$lib/components/ui/SplitText.svelte';
@@ -31,20 +41,30 @@
 
 	let section: HTMLElement | undefined = $state();
 	let heroEl: HTMLElement | undefined = $state();
-	let video: HTMLVideoElement | undefined = $state();
+	let videos: HTMLVideoElement[] = $state([]);
 	let posterEl: HTMLImageElement | undefined = $state();
 	let introEl: HTMLDivElement | undefined = $state();
 	let stepEls: HTMLElement[] = $state([]);
 	let active = $state(-1);
 	let heroProgress = $state(0);
-	let filmReady = $state(false);
-	/** Set when the film is skipped (reduced motion, data saver, load failure). */
+	/** Set when the film is skipped (reduced motion, data saver). */
 	let stillMode = $state(false);
+	/** Still for the active step: the whole story in still mode, and the stand-in while the
+	 *  part of the film the visitor has scrolled to is still downloading. */
 	let still = $state<string>(FILM.poster);
+	/** Film segment on screen (-1 = none yet, the poster shows). */
+	let current = $state(-1);
+	/** The segment the scroll position needs has not downloaded yet. */
+	let waiting = $state(false);
+	const showStill = $derived(stillMode || (waiting && active >= 0));
+	/** The still on screen has loaded. Until then the frame underneath stays visible, so the
+	 *  stage is never blank while a still downloads. */
+	let stillLoaded = $state(false);
+	const stillCovers = $derived(showStill && stillLoaded);
 
 	onMount(() => {
 		if (!section || !heroEl || mode !== 'scene') return;
-		const hasFoundation = steps.some((s) => s.stage === 'foundation');
+		const windows = stepWindows(steps.map((s) => s.stage));
 		const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
 			.connection;
 		stillMode = prefersReducedMotion() || !!connection?.saveData;
@@ -53,6 +73,8 @@
 		let visible = true;
 		let measureRaf = 0;
 		let tickRaf = 0;
+		const loaded: boolean[] = [];
+		const objectUrls: string[] = [];
 		let target = 0; // film time the scroll position asks for
 		let shown = 0; // eased film time actually displayed
 		// Matches the CSS breakpoint where the film switches from letterboxed to full-bleed.
@@ -94,14 +116,12 @@
 				}
 			});
 			active = index;
-			const opts = { heroProgress, index, stage: steps[index]?.stage, count: steps.length };
-			target = filmTime({ ...opts, frac, hasFoundation });
-			if (stillMode) {
-				// Show where the step ends up rather than a mid-transition frame.
-				still =
-					index < 0
-						? FILM.poster
-						: stillAt(stageWindow(opts.stage, index, steps.length, hasFoundation)[1]);
+			target = filmTime({ heroProgress, index, frac, windows });
+			// Show where the step ends up rather than a mid-transition frame.
+			const next = index < 0 ? FILM.poster : stillAt(windows[index][1]);
+			if (next !== still) {
+				still = next;
+				stillLoaded = false;
 			}
 			startTick();
 		};
@@ -110,21 +130,43 @@
 		};
 
 		// Ease the displayed time towards the target so fast scrolls glide instead of jumping,
-		// and only issue a new seek once the previous one has finished.
+		// and only issue a new seek once the previous one has finished. Each segment is its own
+		// <video>; crossing a boundary shows the next one once it has its frame ready.
 		const tick = () => {
 			tickRaf = 0;
-			if (!video || !filmReady || !visible) return;
+			if (!visible || stillMode) return;
 			const diff = target - shown;
 			// Ease small moves so scrolling glides; jump straight there on big moves (fast scroll,
 			// scrollbar drag, anchor links) so the film never trails seconds behind the page.
 			shown = Math.abs(diff) < 1 / 48 || Math.abs(diff) > 1.5 ? target : shown + diff * 0.2;
-			if (!video.seeking && Math.abs(video.currentTime - shown) > 1 / 60) {
-				video.currentTime = shown;
+			const seg = segmentAt(shown);
+			const v = videos[seg];
+			if (loaded[seg] && v) {
+				const t = segmentTime(shown, seg);
+				// Crossing into a segment that is parked on (or next to) the frame needed: show it
+				// straight away, then refine, so a boundary never holds on the previous frame.
+				if (seg !== current && !v.seeking && Math.abs(v.currentTime - t) < 0.25) current = seg;
+				if (!v.seeking && Math.abs(v.currentTime - t) > 1 / 60) v.currentTime = t;
+				if (seg !== current && !v.seeking) current = seg;
+				// Park the neighbouring segment on its joining frame as a boundary approaches.
+				const { start, end } = SEGMENTS[seg];
+				const near = shown > end - 0.6 ? seg + 1 : shown < start + 0.6 ? seg - 1 : -1;
+				const n = videos[near];
+				if (n && near !== current && loaded[near] && !n.seeking) {
+					const join = near > seg ? 0 : segmentTime(Infinity, near);
+					if (Math.abs(n.currentTime - join) > 1 / 60) n.currentTime = join;
+				}
+				// Keep the stand-in still up until the right segment is actually on screen.
+				if (seg === current) waiting = false;
+			} else {
+				waiting = true;
 			}
-			if (shown !== target) tickRaf = requestAnimationFrame(tick);
+			if (shown !== target || (loaded[seg] && seg !== current)) {
+				tickRaf = requestAnimationFrame(tick);
+			}
 		};
 		const startTick = () => {
-			if (!tickRaf && filmReady && visible) tickRaf = requestAnimationFrame(tick);
+			if (!tickRaf && visible) tickRaf = requestAnimationFrame(tick);
 		};
 
 		window.addEventListener('scroll', schedule, { passive: true });
@@ -137,43 +179,60 @@
 		});
 		io.observe(section);
 
-		// Stream the film after first paint. At 1080p near-lossless it is ~60 MB, so waiting for
-		// the whole file would leave the poster up for a long time on average connections;
-		// streaming starts scrubbing within a second or two while the browser keeps buffering
-		// ahead (preload="auto"), and seeks within the buffered part are instant.
+		// Download the film segment by segment into memory, starting with the one the visitor is
+		// at. Scrubbing a stream skips scenes whenever the visitor scrolls past what has buffered
+		// (every seek beyond it waits on the network); from memory every frame is instant. A
+		// part that has not arrived yet shows its stage still. If a download fails, that
+		// segment streams instead; if it cannot play at all, its still stays.
+		const loadSegment = async (i: number) => {
+			const v = videos[i];
+			if (!v) return;
+			let src = SEGMENTS[i].src;
+			try {
+				const res = await fetch(src);
+				if (!res.ok || !res.body) throw new Error(`film ${res.status}`);
+				// Read the body as a stream: some browsers fail one-shot reads of large bodies.
+				const reader = res.body.getReader();
+				const chunks: BlobPart[] = [];
+				for (;;) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					if (disposed) return void reader.cancel();
+					chunks.push(value as Uint8Array<ArrayBuffer>);
+				}
+				src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
+				objectUrls.push(src);
+			} catch {
+				/* stream it instead */
+			}
+			if (disposed) return;
+			await new Promise<void>((resolve) => {
+				v.addEventListener('loadeddata', () => resolve(), { once: true });
+				v.addEventListener('error', () => resolve(), { once: true });
+				v.preload = 'auto';
+				v.src = src;
+			});
+			if (disposed || v.error) return;
+			// iOS only paints seeked frames once the element has played. Never wait on it,
+			// though: browsers can leave play() pending indefinitely for a muted video that is not
+			// visible yet. The segment is still hidden at this point.
+			const played = v.play();
+			played?.catch(() => {
+				/* autoplay refused; seeking still works */
+			});
+			await Promise.race([played, new Promise((r) => setTimeout(r, 400))]).catch(() => {});
+			if (disposed) return;
+			v.pause();
+			// Park on the frame nearest the current position so crossing into it is instant.
+			v.currentTime = segmentTime(shown, i);
+			loaded[i] = true;
+			startTick();
+		};
 		const load = async () => {
-			if (disposed || stillMode || !video) return;
-			video.preload = 'auto';
-			video.src = FILM.src;
-			video.addEventListener(
-				'loadeddata',
-				async () => {
-					if (disposed || !video) return;
-					// iOS only paints seeked frames once the element has played. Never wait on it,
-					// though: browsers can leave play() pending indefinitely for a muted video that
-					// is not visible yet, which would keep the film hidden behind its first frame.
-					const played = video.play();
-					played?.catch(() => {
-						/* autoplay refused; seeking still works */
-					});
-					await Promise.race([played, new Promise((r) => setTimeout(r, 400))]).catch(() => {});
-					if (disposed || !video) return;
-					video.pause();
-					shown = target;
-					video.currentTime = shown;
-					filmReady = true;
-					startTick();
-				},
-				{ once: true }
-			);
-			video.addEventListener(
-				'error',
-				() => {
-					stillMode = true;
-					schedule();
-				},
-				{ once: true }
-			);
+			for (const i of loadOrder(target)) {
+				if (disposed || stillMode) return;
+				await loadSegment(i);
+			}
 		};
 		const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
 		idle(() => void load());
@@ -185,10 +244,12 @@
 			io.disconnect();
 			window.removeEventListener('scroll', schedule);
 			window.removeEventListener('resize', schedule);
-			if (video) {
-				video.removeAttribute('src');
-				video.load();
+			for (const v of videos) {
+				if (!v) continue;
+				v.removeAttribute('src');
+				v.load();
 			}
+			for (const url of objectUrls) URL.revokeObjectURL(url);
 		};
 	});
 </script>
@@ -233,13 +294,29 @@
 					height={FILM.height}
 					fetchpriority="high"
 					decoding="async"
-					class={cx(
-						'film-frame transition-opacity duration-300',
-						filmReady && 'opacity-0 delay-700',
-						stillMode && 'opacity-0'
-					)}
+					class={cx('film-frame', (current >= 0 || stillCovers) && 'opacity-0')}
 				/>
-				{#if stillMode}
+				{#if !stillMode}
+					<!-- One element per film segment; only the one on screen is visible. Segments
+					     switch without a transition: neighbouring frames are continuous. -->
+					{#each SEGMENTS as segment, i (segment.src)}
+						<video
+							bind:this={videos[i]}
+							class={cx('film-frame', i === current && !stillCovers ? 'opacity-100' : 'opacity-0')}
+							muted
+							playsinline
+							preload="none"
+							disablepictureinpicture
+							disableremoteplayback
+							tabindex="-1"
+						></video>
+					{/each}
+				{/if}
+				<!-- Stills: the whole story for reduced motion / data saver, and the stand-in for any
+				     part of the film that is still downloading. The film underneath is hidden
+				     meanwhile, since on portrait screens a frame's faded edge would let it ghost
+				     through. -->
+				{#if showStill}
 					{#key still}
 						<img
 							src={still}
@@ -248,22 +325,9 @@
 							height={FILM.height}
 							decoding="async"
 							class="film-frame film-still"
+							onload={() => (stillLoaded = true)}
 						/>
 					{/key}
-				{:else}
-					<video
-						bind:this={video}
-						class={cx(
-							'film-frame transition-opacity duration-700 ease-out',
-							filmReady ? 'opacity-100' : 'opacity-0'
-						)}
-						muted
-						playsinline
-						preload="none"
-						disablepictureinpicture
-						disableremoteplayback
-						tabindex="-1"
-					></video>
 				{/if}
 			{/if}
 			<!-- legibility gradients -->

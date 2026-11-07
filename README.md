@@ -62,11 +62,11 @@ Editors choose which stage each process step plays (**Home page → Process & co
 How the film degrades and performs:
 
 - **First paint / no JS:** the film's first frame is the LCP image, and all step content stays readable in normal document flow.
-- **Loading:** after first paint the film streams in (1920×1080, near-lossless H.264 at CRF 20, about 60 MB). Scrubbing starts as soon as the first seconds have buffered and the browser keeps buffering ahead. A keyframe every 16 frames keeps backward scrubbing smooth; large jumps (fast scrolls, anchor links) seek straight to the target instead of easing.
+- **Loading:** the film is split into seven stage-sized segments (`static/hero/film-1..7.mp4`, 1920×1080 near-lossless H.264 at CRF 20, 6–16 MB each, about 60 MB in total). After first paint they download one after another, starting with the stage on screen, and are held in memory, so every seek is instant and no scene is skipped. The first stage scrubs after about 6.5 MB instead of the whole film. A stage whose segment has not arrived yet shows its still until it does. A keyframe every 16 frames keeps backward scrubbing smooth; large jumps (fast scrolls, anchor links) seek straight to the target instead of easing.
 - **Phones:** in portrait the 16:9 film sits letterboxed at the top of the screen, above the docked step card.
 - **Reduced motion or data saver:** the film is not downloaded; a still from the film cross-fades in for each step.
 
-To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored: 720p originals in `clips/`, 1080p upscales in `clips-1080/`), run its `stitch.sh`, then re-encode with the settings above and bump `VERSION` in `hero-film.ts`.
+To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored: 720p originals in `clips/`, 1080p upscales in `clips-1080/`), run its `stitch.sh` to make the master, then `segments.sh` to cut the web segments (its frame `CUTS` must match `CUTS` in `hero-film.ts`), and bump `VERSION` in `hero-film.ts`.
 
 Other motion is built with transforms and opacity only. It includes:
 
