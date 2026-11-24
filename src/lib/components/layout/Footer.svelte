@@ -3,8 +3,14 @@
 	import type { Footer, SiteSettings } from '$lib/types';
 	import { telLink, whatsappLink } from '$lib/utils';
 	import { reveal } from '$lib/motion/actions';
+	import InstagramJournal from './InstagramJournal.svelte';
 
-	let { footer, settings }: { footer: Footer | null; settings: SiteSettings } = $props();
+	let {
+		footer,
+		settings,
+		instagram = false
+	}: { footer: Footer | null; settings: SiteSettings; instagram?: boolean } = $props();
+	const instagramUrl = $derived(settings.social?.find((s) => s.platform === 'instagram')?.url);
 	const year = new Date().getFullYear();
 	const a = $derived(settings.address);
 	// Scale the outline wordmark to the name's length so long names never clip.
@@ -24,6 +30,13 @@
 		aria-hidden="true"
 	></div>
 	<div class="container-page relative">
+		{#if instagram && footer?.instagram?.show !== false}
+			<InstagramJournal
+				heading={footer?.instagram?.heading}
+				intro={footer?.instagram?.intro}
+				fallbackUrl={instagramUrl}
+			/>
+		{/if}
 		<div class="grid gap-14 border-b border-limestone-100/12 pt-section-sm pb-16 lg:grid-cols-12">
 			<div class="lg:col-span-5">
 				<p class="sheet-label">{settings.siteName}</p>

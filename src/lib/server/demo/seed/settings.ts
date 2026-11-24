@@ -31,7 +31,7 @@ export const siteSettings: SeedDoc = {
 	],
 	serviceAreas: ['Coimbatore', 'Tiruppur', 'Pollachi', 'Erode', 'Chennai (select projects)'],
 	social: [
-		{ _key: k(), platform: 'instagram', url: 'https://www.instagram.com/' },
+		{ _key: k(), platform: 'instagram', url: 'https://www.instagram.com/spacecraft_associates/' },
 		{ _key: k(), platform: 'linkedin', url: 'https://www.linkedin.com/' },
 		{ _key: k(), platform: 'youtube', url: 'https://www.youtube.com/' },
 		{ _key: k(), platform: 'facebook', url: 'https://www.facebook.com/' }
@@ -170,7 +170,12 @@ export const footer: SeedDoc = {
 		{ _key: k(), label: 'Terms of use', href: '/terms' }
 	],
 	disclaimer:
-		'Images, plans and renderings are representative and for illustration only. Project approval and RERA registration numbers are listed on each project page. Prices exclude registration, stamp duty and applicable taxes unless stated.'
+		'Images, plans and renderings are representative and for illustration only. Project approval and RERA registration numbers are listed on each project page. Prices exclude registration, stamp duty and applicable taxes unless stated.',
+	instagram: {
+		show: true,
+		heading: 'Follow the build, frame by frame',
+		intro: 'Pours, walkthroughs and handovers from our sites, posted as they happen.'
+	}
 };
 
 export const homePage: SeedDoc = {

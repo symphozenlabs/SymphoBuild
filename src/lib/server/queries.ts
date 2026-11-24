@@ -33,7 +33,7 @@ const GUIDE_CARD = `_id, title, "slug": slug.current, topic, icon, excerpt, chec
 export const LAYOUT_QUERY = `{
 	"settings": *[_id == "siteSettings"][0]{..., logo${IMG}, seo{..., image${IMG}}},
 	"navigation": *[_id == "navigation"][0]{main, headerCta},
-	"footer": *[_id == "footer"][0]{statement, columns, legalLinks, disclaimer},
+	"footer": *[_id == "footer"][0]{statement, columns, legalLinks, disclaimer, instagram},
 	"projectOptions": *[_type == "project" && defined(slug.current)] | order(order asc, title asc){title, "slug": slug.current, status},
 	"serviceOptions": *[_type == "service" && defined(slug.current)] | order(order asc){title, "slug": slug.current}
 }`;

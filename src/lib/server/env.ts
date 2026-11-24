@@ -24,7 +24,11 @@ const EnvSchema = z.object({
 	),
 	SANITY_API_READ_TOKEN: optional(z.string().min(20)),
 	SANITY_API_WRITE_TOKEN: optional(z.string().min(20)),
-	LEAD_NOTIFY_WEBHOOK_URL: optional(z.url())
+	LEAD_NOTIFY_WEBHOOK_URL: optional(z.url()),
+	/** Instagram API (Instagram Login) long-lived token; turns on the footer site journal. */
+	INSTAGRAM_ACCESS_TOKEN: optional(z.string().min(20)),
+	/** Set by Vercel; authenticates its cron calls (Instagram token refresh). */
+	CRON_SECRET: optional(z.string().min(16))
 });
 
 export type ServerEnv = z.infer<typeof EnvSchema>;

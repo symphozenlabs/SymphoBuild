@@ -116,6 +116,35 @@ export type Footer = {
 	}[];
 	legalLinks?: { _key: string; label: string; href: string }[];
 	disclaimer?: string;
+	instagram?: { show?: boolean; heading?: string; intro?: string };
+};
+
+/** One post in the footer Instagram "site journal" (see $lib/server/instagram). */
+export type InstagramPost = {
+	id: string;
+	kind: 'image' | 'video' | 'album';
+	/** Photo, first album image, or the video's cover frame. */
+	image: string;
+	/** Video file, for the hover preview of reels. */
+	video?: string;
+	caption: string;
+	permalink: string;
+	timestamp: string;
+};
+export type InstagramProfile = {
+	username: string;
+	name?: string;
+	avatar?: string;
+	followers?: number;
+	posts?: number;
+};
+export type InstagramFeed = {
+	/** demo = sample posts in demo mode; unconfigured = no token; error = Instagram unreachable. */
+	status: 'ok' | 'demo' | 'unconfigured' | 'error';
+	profile: InstagramProfile | null;
+	posts: InstagramPost[];
+	/** Cursor for the next page, or null at the end. */
+	next: string | null;
 };
 
 export type ProjectStatus = 'upcoming' | 'ongoing' | 'completed' | 'ready';

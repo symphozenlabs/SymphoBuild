@@ -131,7 +131,7 @@
 	{@render children()}
 </main>
 
-<Footer footer={data.footer} {settings} />
+<Footer footer={data.footer} {settings} instagram={data.instagram} />
 <ContactActions {settings} />
 <ConsultationDialog />
 <JsonLd data={organization} />

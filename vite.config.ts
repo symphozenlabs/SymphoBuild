@@ -3,6 +3,20 @@ import tailwindcss from '@tailwindcss/vite';
 import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
 
+// Tests always run in demo mode, against the local seed, never against the live Sanity project
+// in .env (the lead tests would otherwise create real leads). This must happen before SvelteKit
+// reads the environment, so it cannot live in `test.env`.
+if (process.env.VITEST) {
+	for (const key of [
+		'PUBLIC_SANITY_PROJECT_ID',
+		'SANITY_API_READ_TOKEN',
+		'SANITY_API_WRITE_TOKEN',
+		'INSTAGRAM_ACCESS_TOKEN',
+		'LEAD_NOTIFY_WEBHOOK_URL'
+	])
+		process.env[key] = '';
+}
+
 export default defineConfig({
 	plugins: [
 		tailwindcss(),

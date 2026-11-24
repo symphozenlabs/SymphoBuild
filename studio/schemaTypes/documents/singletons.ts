@@ -285,7 +285,30 @@ export const footer = defineType({
 			]
 		}),
 		defineField({ name: 'legalLinks', type: 'array', of: [linkItem] }),
-		defineField({ name: 'disclaimer', type: 'text', rows: 3 })
+		defineField({ name: 'disclaimer', type: 'text', rows: 3 }),
+		defineField({
+			name: 'instagram',
+			title: 'Instagram site journal',
+			type: 'object',
+			description:
+				'The latest Instagram posts, shown at the top of the footer on every page. Posts update on their own; this only sets the wording.',
+			options: { collapsible: true, collapsed: false },
+			fields: [
+				defineField({
+					name: 'show',
+					title: 'Show the Instagram feed',
+					type: 'boolean',
+					initialValue: true
+				}),
+				defineField({
+					name: 'heading',
+					type: 'string',
+					description: 'Default: "Follow the build, frame by frame"',
+					validation: (rule) => rule.max(60)
+				}),
+				defineField({ name: 'intro', type: 'text', rows: 2, validation: (rule) => rule.max(200) })
+			]
+		})
 	],
 	preview: { prepare: () => ({ title: 'Footer' }) }
 });

@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import type { Cookies } from '@sveltejs/kit';
+import { isDemoMode } from './env';
 import { LeadSchemas, processLead, rateLimited } from './leads';
 
 const cookies = { get: () => undefined, set: () => {} } as unknown as Cookies;
@@ -60,6 +61,12 @@ describe('lead schemas', () => {
 });
 
 describe('processLead (demo mode)', () => {
+	// processLead stores real leads outside demo mode: refuse to run against a live project.
+	beforeAll(() => {
+		if (!isDemoMode())
+			throw new Error('Lead tests must run in demo mode (see vite.config.ts test.env)');
+	});
+
 	it('silently accepts honeypot submissions without validating or storing', async () => {
 		const r = await processLead('consultation', form({ website: 'http://spam.example' }), {
 			cookies,
