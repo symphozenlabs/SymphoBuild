@@ -3,10 +3,13 @@ import {
 	FILM,
 	HERO_SPAN,
 	SEGMENTS,
+	VARIANTS,
 	STAGE_WINDOWS,
+	filmHeightFor,
 	filmTime,
 	loadOrder,
 	segmentAt,
+	segmentSrc,
 	segmentTime,
 	stepWindows,
 	stillAt
@@ -92,6 +95,27 @@ describe('hero film timeline', () => {
 		const last = SEGMENTS.at(-1)!;
 		expect(segmentTime(FILM.duration, SEGMENTS.length - 1)).toBeLessThan(last.end - last.start);
 		expect(segmentTime(0, 4)).toBe(0);
+	});
+
+	it('gives phones 720p and larger screens 1080p', () => {
+		const phone = { width: 390, height: 844, dpr: 3, landscape: false };
+		const tablet = { width: 820, height: 1180, dpr: 2, landscape: false };
+		const laptop = { width: 1440, height: 900, dpr: 1, landscape: true };
+		const smallLaptop = { width: 1280, height: 720, dpr: 1, landscape: true };
+		const phoneLandscape = { width: 844, height: 390, dpr: 3, landscape: true };
+		expect(filmHeightFor(phone)).toBe(720);
+		expect(filmHeightFor(smallLaptop)).toBe(720);
+		expect(filmHeightFor(tablet)).toBe(1080);
+		expect(filmHeightFor(laptop)).toBe(1080);
+		expect(filmHeightFor(phoneLandscape)).toBe(1080);
+	});
+
+	it('offers an AV1 and an H.264 version at each resolution', () => {
+		for (const height of [720, 1080]) {
+			const ids = VARIANTS.filter((v) => v.height === height).map((v) => v.id);
+			expect(ids).toEqual([`${height}-av1`, `${height}-avc`]);
+		}
+		expect(segmentSrc('720-av1', 0)).toMatch(/^\/hero\/film\/720-av1\/1\.mp4\?v=/);
 	});
 
 	it('downloads the segment in view first, then onwards, then earlier ones', () => {

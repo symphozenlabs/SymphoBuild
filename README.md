@@ -62,11 +62,11 @@ Editors choose which stage each process step plays (**Home page → Process & co
 How the film degrades and performs:
 
 - **First paint / no JS:** the film's first frame is the LCP image, and all step content stays readable in normal document flow.
-- **Loading:** the film is split into seven stage-sized segments (`static/hero/film-1..7.mp4`, 1920×1080 near-lossless H.264 at CRF 20, 6–16 MB each, about 60 MB in total). After first paint they download one after another, starting with the stage on screen, and are held in memory, so every seek is instant and no scene is skipped. The first stage scrubs after about 6.5 MB instead of the whole film. A stage whose segment has not arrived yet shows its still until it does. A keyframe every 16 frames keeps backward scrubbing smooth; large jumps (fast scrolls, anchor links) seek straight to the target instead of easing.
+- **Loading:** the film is split into seven stage-sized segments, encoded in four versions under `static/hero/film/`: 1080p and 720p, each in AV1 and H.264, all visually identical at the size they are shown (VMAF ≈ 97+ against the master). Each visitor gets the smallest that suits them: 720p where the film is drawn no wider than about 1,400 device pixels (phones, small laptops), and AV1 only where the device decodes it in hardware, else H.264, which plays everywhere (software AV1 plays fine but each seek takes 5–8× longer than H.264, which makes scrubbing choppy). A phone downloads roughly a third of the 1080p H.264 bytes. The segments download one after another, starting with the stage on screen, and are held in memory, so every seek is instant and no scene is skipped. A stage whose segment has not arrived yet shows its still until it does. A keyframe every 16 frames keeps backward scrubbing smooth; large jumps (fast scrolls, anchor links) seek straight to the target instead of easing. WebP/AVIF image sequences and WebRTC streaming were measured and rejected: image sequences came out 2–4× larger at lower quality, and WebRTC adds a network round trip to every scroll.
 - **Phones:** in portrait the 16:9 film sits letterboxed at the top of the screen, above the docked step card.
 - **Reduced motion or data saver:** the film is not downloaded; a still from the film cross-fades in for each step.
 
-To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored: 720p originals in `clips/`, 1080p upscales in `clips-1080/`), run its `stitch.sh` to make the master, then `segments.sh` to cut the web segments (its frame `CUTS` must match `CUTS` in `hero-film.ts`), and bump `VERSION` in `hero-film.ts`.
+To rebuild the film, keep the source clips in `assets-src/hero-video/` (git-ignored: 720p originals in `clips/`, 1080p upscales in `clips-1080/`), run its `stitch.sh` to make the master, then `segments.sh` to cut all four web versions (its frame `CUTS` must match `CUTS` in `hero-film.ts`; AV1 takes about half an hour), and bump `VERSION` in `hero-film.ts`.
 
 Other motion is built with transforms and opacity only. It includes:
 
@@ -185,7 +185,22 @@ The four enquiry flows (consultation or site visit, project enquiry, landowner/J
 
 **Studio:** run `cd studio && npm run deploy` to host it at `<name>.sanity.studio`, or deploy `studio/dist` to any static host.
 
-**Hardening:** consider adding a Content-Security-Policy through `kit.csp` once your third-party embeds are final. The site already sends `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and `Permissions-Policy`.
+**Hardening:** consider adding a Content-Security-Policy through `kit.csp` once your third-party embeds are final. The site already sends `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and `Permissions-Policy`. If you add a CSP, allow Instagram's image and video hosts (`*.cdninstagram.com`, `*.fbcdn.net`) for the footer site journal.
+
+### Instagram site journal (footer)
+
+The top of the footer shows the latest Instagram posts on every page. New posts appear on their own within about 15 minutes. Until the account is connected, the band is hidden on the live site (demo mode shows sample posts).
+
+To connect it, once:
+
+1. The Instagram account must be a **professional** account (Business or Creator: Instagram → Settings → Account type and tools).
+2. At [developers.facebook.com](https://developers.facebook.com/apps), create an app (type **Business**) and add the **Instagram** product, choosing **API setup with Instagram login**.
+3. Under **Generate access tokens**, add the Instagram account, sign in to it and copy the generated token. This is a long-lived token (60 days).
+4. In Vercel → Project → Settings → Environment Variables, set `INSTAGRAM_ACCESS_TOKEN` to that token (and optionally `CRON_SECRET` to any long random string), then redeploy.
+
+The site renews the token every week by itself and stores the renewed token in a private Sanity document (`secrets.instagram`, which is never publicly readable), so it does not expire. This needs `SANITY_API_WRITE_TOKEN`. A daily Vercel cron (`vercel.json`) renews it as a backup. If the account is ever reconnected, paste the new token into `INSTAGRAM_ACCESS_TOKEN` and it replaces the stored one.
+
+The heading, intro and an on/off switch are in Studio under **Footer → Instagram site journal**. The feed is served from `/api/instagram` (cached at the edge for 15 minutes) and only loads as a visitor nears the footer, so it never slows a page down.
 
 ## 10. Project structure
 

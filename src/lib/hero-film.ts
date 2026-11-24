@@ -21,15 +21,84 @@ const FPS = 24;
 const CUTS = [0, 110, 223, 379, 494, 597, 696, 844];
 
 /**
- * The film in stage-aligned pieces (1080p H.264, keyframe every 16 frames). Each is downloaded
- * on its own, in order, so the first stages scrub within seconds instead of waiting for the
- * whole ~60 MB film; later pieces arrive while the visitor reads the first stages.
+ * The film in stage-aligned pieces (keyframe every 16 frames). Each is downloaded on its own,
+ * in order, so the first stages scrub within seconds; later pieces arrive while the visitor
+ * reads the first stages.
  */
 export const SEGMENTS = CUTS.slice(0, -1).map((from, i) => ({
 	start: from / FPS,
-	end: CUTS[i + 1] / FPS,
-	src: `/hero/film-${i + 1}.mp4?v=${VERSION}`
+	end: CUTS[i + 1] / FPS
 }));
+
+/**
+ * The film in four encodes (static/hero/film/<id>/<n>.mp4, made by segments.sh), all visually
+ * identical at the size they are shown (VMAF ≈ 97+ against the master). Each visitor gets the
+ * smallest one their screen and browser can use: 720p where the film is drawn no wider than a
+ * phone shows it (about a third of the 1080p bytes with AV1), and AV1 only where the device
+ * decodes it in hardware (28–32% smaller than H.264), else H.264, which plays everywhere.
+ * Software AV1 decodes fine for playback but takes 5–8× longer per seek than H.264 (measured:
+ * ~340 ms vs ~70 ms per frame step at 1080p), which would make scrubbing visibly choppy.
+ */
+export const VARIANTS = [
+	{ id: '720-av1', height: 720, type: 'video/mp4; codecs="av01.0.05M.08"', mbps: 4.5 },
+	{ id: '720-avc', height: 720, type: 'video/mp4; codecs="avc1.640028"', mbps: 6.5 },
+	{ id: '1080-av1', height: 1080, type: 'video/mp4; codecs="av01.0.08M.08"', mbps: 11 },
+	{ id: '1080-avc', height: 1080, type: 'video/mp4; codecs="avc1.640032"', mbps: 14 }
+] as const;
+export type FilmVariant = (typeof VARIANTS)[number]['id'];
+
+export const segmentSrc = (variant: FilmVariant, index: number) =>
+	`/hero/film/${variant}/${index + 1}.mp4?v=${VERSION}`;
+
+/** Widest the film is drawn, in device pixels, at which 720p still looks as sharp as 1080p. */
+const MAX_720_WIDTH = 1400;
+
+/**
+ * The resolution to use for a screen. Landscape screens show the film full-bleed (cover), so
+ * it is drawn at least as wide as the viewport and as wide as 16:9 of its height; portrait
+ * screens letterbox it to the viewport width.
+ */
+export function filmHeightFor(screen: {
+	width: number;
+	height: number;
+	dpr: number;
+	landscape: boolean;
+}): 720 | 1080 {
+	const drawn = screen.landscape ? Math.max(screen.width, (screen.height * 16) / 9) : screen.width;
+	return drawn * screen.dpr <= MAX_720_WIDTH ? 720 : 1080;
+}
+
+/** The version for this visitor (browser only). */
+export async function pickFilmVariant(): Promise<FilmVariant> {
+	const height = filmHeightFor({
+		width: window.innerWidth,
+		height: window.innerHeight,
+		dpr: window.devicePixelRatio || 1,
+		landscape: window.matchMedia('(min-aspect-ratio: 5/4)').matches
+	});
+	const [av1, avc] = VARIANTS.filter((v) => v.height === height);
+	return (await decodesInHardware(av1)) ? av1.id : avc.id;
+}
+
+async function decodesInHardware(variant: (typeof VARIANTS)[number]): Promise<boolean> {
+	if (!document.createElement('video').canPlayType(variant.type)) return false;
+	try {
+		const info = await navigator.mediaCapabilities.decodingInfo({
+			type: 'file',
+			video: {
+				contentType: variant.type,
+				width: (variant.height * 16) / 9,
+				height: variant.height,
+				framerate: 24,
+				bitrate: variant.mbps * 1_000_000
+			}
+		});
+		// powerEfficient means a hardware decoder: fast seeks, and no drain on phone batteries.
+		return info.supported && info.smooth && info.powerEfficient;
+	} catch {
+		return false;
+	}
+}
 
 /** Index of the segment that holds a film time. */
 export function segmentAt(time: number): number {

@@ -21,9 +21,12 @@
 	import {
 		FILM,
 		SEGMENTS,
+		type FilmVariant,
 		filmTime,
 		loadOrder,
+		pickFilmVariant,
 		segmentAt,
+		segmentSrc,
 		segmentTime,
 		stepWindows,
 		stillAt
@@ -184,10 +187,10 @@
 		// (every seek beyond it waits on the network); from memory every frame is instant. A
 		// part that has not arrived yet shows its stage still. If a download fails, that
 		// segment streams instead; if it cannot play at all, its still stays.
-		const loadSegment = async (i: number) => {
+		const loadSegment = async (variant: FilmVariant, i: number) => {
 			const v = videos[i];
 			if (!v) return;
-			let src = SEGMENTS[i].src;
+			let src = segmentSrc(variant, i);
 			try {
 				const res = await fetch(src);
 				if (!res.ok || !res.body) throw new Error(`film ${res.status}`);
@@ -229,9 +232,11 @@
 			startTick();
 		};
 		const load = async () => {
+			// One version for the whole film (resolution for this screen, best codec it decodes).
+			const variant = await pickFilmVariant();
 			for (const i of loadOrder(target)) {
 				if (disposed || stillMode) return;
-				await loadSegment(i);
+				await loadSegment(variant, i);
 			}
 		};
 		const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
@@ -299,7 +304,7 @@
 				{#if !stillMode}
 					<!-- One element per film segment; only the one on screen is visible. Segments
 					     switch without a transition: neighbouring frames are continuous. -->
-					{#each SEGMENTS as segment, i (segment.src)}
+					{#each SEGMENTS as segment, i (segment.start)}
 						<video
 							bind:this={videos[i]}
 							class={cx('film-frame', i === current && !stillCovers ? 'opacity-100' : 'opacity-0')}
