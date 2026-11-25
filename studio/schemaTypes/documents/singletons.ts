@@ -321,6 +321,7 @@ export const homePage = defineType({
 	groups: [
 		{ name: 'hero', title: 'Hero', default: true },
 		{ name: 'story', title: 'Process & construction film' },
+		{ name: 'about', title: 'About' },
 		{ name: 'sections', title: 'Sections' },
 		{ name: 'seo', title: 'SEO' }
 	],
@@ -386,6 +387,54 @@ export const homePage = defineType({
 					type: 'array',
 					of: [defineArrayMember({ type: 'processStep' })],
 					validation: (rule) => rule.min(2).max(8)
+				})
+			]
+		}),
+		defineField({
+			name: 'about',
+			title: 'About section',
+			type: 'object',
+			group: 'about',
+			description:
+				'Introduces the studio below the construction film. Leave the heading empty to hide the section.',
+			fields: [
+				defineField({ name: 'eyebrow', type: 'string', initialValue: 'About us' }),
+				defineField({ name: 'heading', type: 'string', validation: (rule) => rule.max(60) }),
+				defineField({ name: 'intro', type: 'text', rows: 3 }),
+				defineField({ name: 'cta', title: 'Link', type: 'cta' }),
+				defineField({
+					name: 'focusAreas',
+					title: 'Focus areas',
+					description: 'What the studio designs and builds, e.g. homes and commercial spaces.',
+					type: 'array',
+					validation: (rule) => rule.max(3),
+					of: [
+						defineArrayMember({
+							type: 'object',
+							name: 'focusArea',
+							fields: [
+								defineField({
+									name: 'label',
+									type: 'string',
+									description: 'Short label above the title, e.g. "Residential".'
+								}),
+								defineField({
+									name: 'title',
+									type: 'string',
+									validation: (rule) => rule.required().max(70)
+								}),
+								defineField({
+									name: 'text',
+									type: 'text',
+									rows: 4,
+									description: 'Separate paragraphs with a blank line.'
+								}),
+								defineField({ name: 'image', type: 'imageWithAlt' }),
+								defineField({ name: 'cta', title: 'Link', type: 'cta' })
+							],
+							preview: { select: { title: 'title', subtitle: 'label', media: 'image' } }
+						})
+					]
 				})
 			]
 		}),

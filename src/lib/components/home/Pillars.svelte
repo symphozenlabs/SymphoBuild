@@ -20,7 +20,7 @@
 	<div class="blueprint-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
 	<div class="spot-light pointer-events-none absolute inset-0" aria-hidden="true"></div>
 	<div class="container-page relative">
-		<SectionHeading id="pillars-heading" number="SA—04" eyebrow="Commitments" {heading} {intro} />
+		<SectionHeading id="pillars-heading" number="SA—05" eyebrow="Commitments" {heading} {intro} />
 		<ol
 			class="mt-16 grid gap-px overflow-hidden rounded-md bg-limestone-100/12 sm:grid-cols-2 lg:grid-cols-5"
 		>

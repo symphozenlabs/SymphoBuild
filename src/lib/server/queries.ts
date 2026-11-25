@@ -40,6 +40,7 @@ export const LAYOUT_QUERY = `{
 
 export const HOME_QUERY = `*[_id == "homePage"][0]{
 	hero{..., image${IMG}},
+	about{..., focusAreas[]{..., image${IMG}}},
 	statsHeading, stats,
 	projectsHeading, projectsIntro,
 	"featuredProjects": featuredProjects[]->{${PROJECT_CARD}},

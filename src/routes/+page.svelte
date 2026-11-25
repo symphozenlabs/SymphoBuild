@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Seo from '$lib/components/seo/Seo.svelte';
 	import BuildStory from '$lib/components/home/BuildStory.svelte';
+	import AboutStudio from '$lib/components/home/AboutStudio.svelte';
 	import StatsBand from '$lib/components/home/StatsBand.svelte';
 	import FeaturedProjects from '$lib/components/home/FeaturedProjects.svelte';
 	import ServicesIndex from '$lib/components/home/ServicesIndex.svelte';
@@ -20,6 +21,10 @@
 <Seo seo={home.seo} />
 
 <BuildStory hero={home.hero} process={home.process} />
+
+{#if home.about?.heading}
+	<AboutStudio about={home.about} />
+{/if}
 
 {#if home.stats?.length}
 	<StatsBand heading={home.statsHeading} stats={home.stats} />
@@ -55,7 +60,7 @@
 			<div class="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
 				<SectionHeading
 					id="insights-heading"
-					number="SA—06"
+					number="SA—07"
 					eyebrow="Insights"
 					heading={home.insightsHeading}
 					intro={home.insightsIntro}
@@ -82,7 +87,7 @@
 			<div class="lg:sticky lg:top-32">
 				<SectionHeading
 					id="faq-heading"
-					number="SA—07"
+					number="SA—08"
 					eyebrow="FAQ"
 					heading={home.faqHeading}
 					size="md"

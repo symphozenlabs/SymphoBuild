@@ -320,6 +320,25 @@ export type Page = {
 	_updatedAt?: string;
 };
 
+/** A line of work the studio focuses on (residential, commercial…), shown in the home "About" section. */
+export type FocusArea = {
+	_key: string;
+	label?: string;
+	title: string;
+	/** Paragraphs separated by a blank line. */
+	text?: string;
+	image?: SanityImage;
+	cta?: Cta;
+};
+
+export type HomeAbout = {
+	eyebrow?: string;
+	heading?: string;
+	intro?: string;
+	cta?: Cta;
+	focusAreas?: FocusArea[];
+};
+
 export type HomePage = {
 	hero?: {
 		eyebrow?: string;
@@ -332,6 +351,7 @@ export type HomePage = {
 		videoUrl?: string;
 		coordinatesLabel?: string;
 	};
+	about?: HomeAbout;
 	statsHeading?: string;
 	stats?: Stat[];
 	projectsHeading?: string;

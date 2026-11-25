@@ -182,15 +182,45 @@ export const homePage: SeedDoc = {
 	_id: 'homePage',
 	_type: 'homePage',
 	hero: {
-		eyebrow: 'Design-led builders · Western Tamil Nadu',
-		headline: 'Homes drawn with intent, built without shortcuts.',
+		eyebrow: 'Premium residential construction & architectural design',
+		headline: 'Thoughtfully designed. Precisely built.',
 		intro:
-			'Spacecraft Associates designs, approves and constructs apartments, villas and workplaces with one accountable team — from the first sketch on the site to the last key in your hand.',
-		primaryCta: cta('Explore projects', '/projects', 'primary'),
-		secondaryCta: cta('Book a consultation', '/contact#consultation', 'secondary', 'consultation'),
+			'We specialize in creating distinctive residences through thoughtful architectural design, engineering expertise, and carefully coordinated construction.',
+		primaryCta: cta('Explore residential projects', '/projects', 'primary'),
+		secondaryCta: cta(
+			'Discuss your dream home',
+			'/contact#consultation',
+			'secondary',
+			'consultation'
+		),
 		mediaMode: 'scene',
 		image: img('hero_tower', 'Placeholder illustration of a mid-rise residential tower at dusk'),
 		coordinatesLabel: '11.0003° N · 76.9748° E'
+	},
+	about: {
+		eyebrow: 'About Spacecraft Associates',
+		heading: 'Space for future.',
+		intro:
+			'From personalized homes to premium villas, we bring design and execution together to create spaces built around your vision.',
+		cta: cta('More about us', '/about', 'ghost'),
+		focusAreas: [
+			{
+				_key: k(),
+				label: 'Residential',
+				title: 'Homes that reflect your vision',
+				text: 'Every home deserves a design that is personal, purposeful, and built to last.\n\nAt Spacecraft Associates, we combine architectural creativity with practical construction knowledge to guide your project from concept to completion.',
+				image: img('terracotta_house', 'Placeholder illustration of a contemporary villa at night'),
+				cta: cta('Explore residential projects', '/projects', 'ghost')
+			},
+			{
+				_key: k(),
+				label: 'Commercial',
+				title: 'Commercial spaces that make an impression',
+				text: 'We design distinctive commercial environments that bring together architecture, brand identity, functionality, and visual impact.\n\nFrom retail facades and showrooms to restaurants and interior environments, our work transforms commercial spaces into memorable experiences.',
+				image: img('meridian_works', 'Placeholder illustration of a commercial building at dusk'),
+				cta: cta('View commercial work', '/projects?type=commercial', 'ghost')
+			}
+		]
 	},
 	statsHeading: 'A practice measured in handovers, not hoardings.',
 	stats: [

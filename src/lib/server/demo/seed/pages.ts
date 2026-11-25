@@ -114,13 +114,45 @@ export const pages: SeedDoc[] = [
 		id: 'about',
 		title: 'About',
 		hero: {
-			eyebrow: 'About Spacecraft Associates',
-			heading: 'We believe a building should be as well documented as it is well built.',
+			eyebrow: 'About Spacecraft Associates · Space for future',
+			heading: 'Thoughtfully designed. Precisely built.',
 			intro:
-				'Founded in 2008 (demo), Spacecraft Associates is a design-led construction and real-estate practice based in Coimbatore.',
+				'We specialize in creating distinctive residences through thoughtful architectural design, engineering expertise, and carefully coordinated construction.',
 			image: img('office', 'Placeholder illustration of the Spacecraft Associates studio building')
 		},
 		sections: [
+			{
+				_type: 'imageTextSection',
+				eyebrow: 'Residential',
+				heading: 'Homes that reflect your vision',
+				body: body(
+					p(
+						'Every home deserves a design that is personal, purposeful, and built to last. From personalized homes to premium villas, we bring design and execution together to create spaces built around your vision.'
+					),
+					p(
+						'At Spacecraft Associates, we combine architectural creativity with practical construction knowledge to guide your project from concept to completion.'
+					)
+				),
+				image: img('terracotta_house', 'Placeholder illustration of a contemporary villa at night'),
+				imagePosition: 'right',
+				cta: cta('Discuss your dream home', '/contact#consultation', 'primary', 'consultation')
+			},
+			{
+				_type: 'imageTextSection',
+				eyebrow: 'Commercial',
+				heading: 'Commercial spaces that make an impression',
+				body: body(
+					p(
+						'We design distinctive commercial environments that bring together architecture, brand identity, functionality, and visual impact.'
+					),
+					p(
+						'From retail facades and showrooms to restaurants and interior environments, our work transforms commercial spaces into memorable experiences.'
+					)
+				),
+				image: img('meridian_works', 'Placeholder illustration of a commercial building at dusk'),
+				imagePosition: 'left',
+				cta: cta('View commercial work', '/projects?type=commercial', 'secondary')
+			},
 			{
 				_type: 'imageTextSection',
 				eyebrow: 'Our story',
